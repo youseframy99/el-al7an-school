@@ -85,7 +85,7 @@ onAuthStateChanged(auth, async (user) => {
 
       if (servantSnap.exists()) {
         const servantData = servantSnap.data();
-        servantNameDisplay.textContent = `خ. ${servantData.name || servantData.fullName || "خادم الفصل"}`;
+        servantNameDisplay.textContent = `أ/ ${servantData.name || servantData.fullName || "خادم الفصل"}`;
       } else {
         servantNameDisplay.textContent = "خادم النظام";
       }
