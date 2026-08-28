@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة عرض الخادم - مدرسة الألحان</title>
+  <link rel="icon" href="../../assets/images/cross (2).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../styles/servant-style.css">
+</head>
+<body class="servant-page">
+
+  <header class="site-header">
+    <div class="user-profile-summary">
+      <img src="../../assets/images/archangel-michael.jpg" alt="شعار الكنيسة" class="avatar">
+      <div>
+        <h1>أهلاً بك، <span id="servant-name-display">جاري التحميل...</span></h1>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <button class="theme-toggle" id="theme-toggle" title="تغيير الثيم"><i class="fa-solid fa-moon"></i></button>
+      <button id="logout-btn" class="logout-btn" title="تسجيل الخروج">
+        <i class="fa-solid fa-right-from-bracket"></i> الخروج
+      </button>
+    </div>
+  </header>
+
+  <main class="container servant-container">
+    
+    <section class="action-bar" style="margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center;">
+      <h3>متابعة طلاب الفصل والدرجات</h3>
+      <a href="./servant-control.html" class="btn-control-link" style="background: #2980b9; color: white; padding: 10px 18px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-sliders"></i> الانتقال لوحة الكنترول والأفعال
+      </a>
+    </section>
+
+    <!-- قائمة أوائل المخدومين (Leaderboard) للمراحل -->
+    <section class="card-box" style="margin-bottom: 30px;">
+      <h3 class="section-title"><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> لوحة الشرف (Leaderboard) للمراحل</h3>
+      <div id="leaderboard-container">
+        <p style="text-align: center; color: var(--text-muted);">جاري تحميل قائمة الأوائل...</p>
+      </div>
+    </section>
+
+    <!-- قائمة طلاب المراحل (عرض بياناتهم ونقاطهم بدون أزرار تسجيل) -->
+    <section class="card-box" id="students-container" style="margin-bottom: 30px;">
+      <h3 class="section-title"><i class="fa-solid fa-users-rectangle"></i> قائمة مخدومي المراحل والفصول</h3>
+      <p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري جلب بيانات الطلاب...</p>
+    </section>
+<!-- قسم جدول درجات الامتحانات المنفصل -->
+    <section class="card-box" id="exams-grades-container" style="margin-bottom: 30px;">
+      <h3 class="section-title"><i class="fa-solid fa-file-lines"></i> درجات امتحانات المخدومين</h3>
+      <div id="grades-table-wrapper">
+        <p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري تحميل درجات الامتحانات...</p>
+      </div>
+    </section>
+    <!-- قسم عرض سجلات الحضور السابق -->
+    <section class="card-box" id="attendance-history-container">
+      <h3 class="section-title"><i class="fa-solid fa-clipboard-user"></i> سجل الحضور السابق للمخدومين</h3>
+      <div id="attendance-history-list">
+        <p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري تحميل سجلات الحضور...</p>
+      </div>
+    </section>
+
+  </main>
+
+  <script type="module" src="servant-dashboard.js"></script>
+</body>
+</html>

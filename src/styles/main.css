@@ -1,0 +1,172 @@
+/* ===== Design tokens ===== */
+:root {
+  --color-bg: #FAF8F3;
+  --color-surface: #FFFFFF;
+  --color-text: #1F2937;
+  --color-text-muted: #6B7280;
+  --color-primary: #0B2545;      /* كحلي غامق */
+  --color-primary-hover: #133a6b;
+  --color-accent: #B8860B;       /* دهبي هادئ */
+  --color-border: #E5E1D8;
+  --color-error: #B3261E;
+}
+
+[data-theme="dark"] {
+  --color-bg: #12141C;
+  --color-surface: #1B1E2A;
+  --color-text: #EDEBE4;
+  --color-text-muted: #9CA3AF;
+  --color-primary: #D4AF37;      /* الدهبي بيبقى هو البارز في الدارك */
+  --color-primary-hover: #e6c04d;
+  --color-accent: #D4AF37;
+  --color-border: #2C2F3A;
+  --color-error: #F87171;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Cairo", "Segoe UI", sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--color-border);
+  width: 100%;
+}
+
+.site-header .logo {
+  height: 42px;
+  width: 42px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.site-header h1 {
+  font-size: 20px;
+  margin: 0;
+  color: var(--color-primary);
+}
+
+.theme-toggle {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .site-header h1 {
+    font-size: 17px;
+  }
+}
+/* 1. الهيدر في الوضع الليلي */
+body.dark-mode header,
+body.dark-mode .header {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-bottom: 1px solid #333333;
+}
+
+/* 2. القائمة الجانبية (Sidebar) والكروت البيضاء اللي على اليمين والشمال */
+body.dark-mode .sidebar,
+body.dark-mode aside,
+body.dark-mode .menu-card,
+body.dark-mode .right-panel,
+body.dark-mode .side-menu {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* 3. العناصر النشطة داخل القائمة (Active link / item) */
+body.dark-mode .sidebar a.active,
+body.dark-mode aside .active,
+body.dark-mode .menu-item.active {
+  background-color: #2c2c2c !important;
+  color: #4da3ff !important; /* لون مميز زي الأزرق الفاتح للعنصر المختار */
+}
+
+/* 4. النصوص داخل القائمة الجانبية */
+body.dark-mode .sidebar a,
+body.dark-mode aside li,
+body.dark-mode .side-menu span {
+  color: #dddddd !important;
+}
+
+/* 5. اسم المستخدم والنقاط والمستوى في الهيدر */
+body.dark-mode #user-name-display,
+body.dark-mode .user-name,
+body.dark-mode .level-badge {
+  color: #ffffff !important;
+}
+/* 1. الصفحة كلها والخلفيات الرئيسية والعامة */
+body.dark-mode {
+  background-color: #121212 !important;
+  color: #f1f1f1 !important;
+}
+
+/* 2. جميع الـ Sections والـ Containers داخل الصفحة */
+body.dark-mode section,
+body.dark-mode .container,
+body.dark-mode main,
+body.dark-mode div:not(header div) {
+  background-color: inherit; /* بيحافظ على التنسيق ويمنع تداخل الخلفيات */
+  color: #f1f1f1 !important;
+}
+
+/* 3. الكروت والبطاقات (زي كارت اللحن، الإحصائيات، المواد) */
+body.dark-mode .card,
+body.dark-mode .stats-box,
+body.dark-mode .hymn-container,
+body.dark-mode .subject-card,
+body.dark-mode .profile-card {
+  background-color: #1e1e1e !important;
+  color: #ffffff !important;
+  border-color: #333333 !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* 4. العناوين والنصوص البارزة */
+body.dark-mode h1, 
+body.dark-mode h2, 
+body.dark-mode h3, 
+body.dark-mode h4, 
+body.dark-mode h5, 
+body.dark-mode h6 {
+  color: #ffffff !important;
+}
+
+/* 5. النصوص الفرعية أو الباهتة */
+body.dark-mode p, 
+body.dark-mode span, 
+body.dark-mode label {
+  color: #cccccc !important;
+}
+
+/* 6. حقول الإدخال والـ Inputs لو موجودة في أي Section */
+body.dark-mode input, 
+body.dark-mode select, 
+body.dark-mode textarea {
+  background-color: #2a2a2a !important;
+  color: #ffffff !important;
+  border-color: #444444 !important;
+}

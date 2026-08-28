@@ -1,0 +1,248 @@
+:root {
+  --primary-color: #1a365d;
+  --secondary-color: #d69e2e;
+  --bg-color: #f7fafc;
+  --card-bg: #ffffff;
+  --text-main: #2d3748;
+  --text-muted: #718096;
+  --border-color: #e2e8f0;
+  --radius: 12px;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-main);
+  margin: 0;
+  padding: 20px;
+}
+
+/* Header UI */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--card-bg);
+  padding: 15px 25px;
+  border-radius: var(--radius);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.user-profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  border: 2px solid var(--secondary-color);
+  object-fit: cover;
+}
+
+.badge-level {
+  background: #fefcbf;
+  color: #744210;
+  padding: 4px 10px;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+/* Stats Banner */
+.stats-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  padding: 15px 20px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+}
+
+.stat-card i {
+  font-size: 1.8rem;
+}
+.gold-icon { color: #d69e2e; }
+.bronze-icon { color: #319795; }
+.green-icon { color: #38a169; }
+
+.stat-value {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Dashboard Layout */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Sidebar */
+.sidebar {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+  height: fit-content;
+}
+
+.sidebar h3 {
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  color: var(--primary-color);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sidebar-nav a {
+  text-decoration: none;
+  color: var(--text-main);
+  padding: 10px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  background: #ebf8ff;
+  color: #3182ce;
+  font-weight: bold;
+}
+
+/* Cards & Content */
+.subjects-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.subject-card {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.badge-status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+.badge-status.success { background: #c6f6d5; color: #22543d; }
+.badge-status.warning { background: #feebc8; color: #744210; }
+
+/* Hymns Styling */
+.hymn-title {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.hymn-lines {
+  background: #f7fafc;
+  padding: 15px;
+  border-radius: 8px;
+  border-right: 4px solid var(--secondary-color);
+  margin: 15px 0;
+}
+
+.coptic-line { font-family: 'Segoe UI', serif; font-size: 1.1rem; color: #742a2a; }
+.transliterated-line { color: #2b6cb0; font-weight: 500; }
+.arabic-line { color: var(--text-muted); }
+
+.audio-box audio {
+  width: 100%;
+  margin-top: 10px;
+}
+
+/* Buttons */
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.card-actions a {
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: opacity 0.2s;
+}
+
+.btn-pdf { background: #edf2f7; color: #4a5568; }
+.btn-quiz { background: #3182ce; color: #ffffff; }
+.btn-whatsapp { background: #38a169; color: #ffffff; }
+
+.card-actions a:hover { opacity: 0.85; }
+/* تصميم زرار تسجيل الخروج */
+.logout-btn {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #cc0000;
+  transform: translateY(-1px);
+}
+
+/* تنسيق إضافي لو محتاج مسافة بينه وبين الأزرار اللي جنبه في الهيدر */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

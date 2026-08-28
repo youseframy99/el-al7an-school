@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المناهج وملفات PDF - مدرسة الألحان</title>
+    <link rel="icon" href="../../assets/images/cross (2).png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../styles/servant-style.css"> <!-- أو ملف الـ CSS الخاص بالطالب عندك -->
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --bg-color: #f8f9fa;
+            --text-color: #333;
+            --text-muted: #7f8c8d;
+            --border-color: #e2e8f0;
+            --card-bg: #ffffff;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Cairo', sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+        }
+        header h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .file-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .file-info {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .file-icon {
+            font-size: 2.5rem;
+            color: #e74c3c;
+        }
+        .file-details h3 {
+            font-size: 1.1rem;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            word-break: break-word;
+        }
+        .file-details span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 3px;
+        }
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            text-decoration: none;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        .btn-view {
+            background: #e1f5fe;
+            color: #0288d1;
+        }
+        .btn-download {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .no-files {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            background: #fff;
+            border-radius: 12px;
+            border: 1px dashed var(--border-color);
+        }
+    </style>
+</head>
+<body>
+
+    <main class="container">
+       <!-- الهيدر مع زرار العودة -->
+    <header class="site-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px; background: #fff; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+        <div>
+            <h1 style="font-size: 1.4rem; color: #2c3e50; margin: 0;"><i class="fa-solid fa-book-open"></i> مناهج ودروس الخدمة</h1>
+        </div>
+        <div>
+            <a href="../../index.html" class="logout-btn" title="العودة لوحة العرض" style="padding: 8px 15px; background: #e74c3c; color: white; border-radius: 6px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 5px;">
+                <i class="fa-solid fa-arrow-right"></i> العودة
+            </a>
+        </div>
+    </header>
+        <header>
+            <h1><i class="fa-solid fa-book-open"></i> مناهج ودروس الخدمة</h1>
+            <p>استعرض ملفات الـ PDF والمناهج المرفوعة لمرحلتك الدراسية</p>
+        </header>
+
+        <div id="files-container" class="files-grid">
+            <div class="no-files">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <p>جاري تحميل المناهج...</p>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyC8oBF0wWzLC7kxk7uzR4Wn5pWTC7BZavo",
+          authDomain: "el-al7an-school.firebaseapp.com",
+          projectId: "el-al7an-school",
+          storageBucket: "el-al7an-school.firebasestorage.app",
+          messagingSenderId: "1063809387413",
+          appId: "1:1063809387413:web:2cd2a2ca849442f9b7c49c"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                try {
+                    // 1. جلب بيانات الطالب الحالية لمعرفة مرحلته الدراسية
+                    const userDocRef = doc(db, "users", user.uid);
+                    const userSnap = await getDoc(userDocRef);
+                    
+                    let studentGrade = "";
+                    if (userSnap.exists()) {
+                        const userData = userSnap.data();
+                        studentGrade = userData.grade || userData.classId || "";
+                    }
+
+                    // 2. جلب المناهج الخاصة بمرحلة الطالب (أو جلب الكل لو مش متسجل له مرحلة)
+                    const lessonsRef = collection(db, "lessons");
+                    let q = lessonsRef;
+                    
+                    if (studentGrade) {
+                        q = query(lessonsRef, where("grade", "==", studentGrade));
+                    }
+
+                    const querySnapshot = await getDocs(q);
+                    const container = document.getElementById("files-container");
+
+                    if (querySnapshot.empty) {
+                        container.innerHTML = `
+                            <div class="no-files">
+                                <i class="fa-solid fa-folder-open" style="font-size: 2.5rem; color: #bdc3c7; margin-bottom: 10px;"></i>
+                                <p>لا توجد ملفات PDF مرفوعة لمرحلتك الدراسية حالياً.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let htmlContent = "";
+                    querySnapshot.forEach((docSnap) => {
+                        const data = docSnap.data();
+                        const title = data.title || "درس بدون عنوان";
+                        const subject = data.subject || "عام";
+                        const pdfUrl = data.pdfUrl || "#";
+                        
+                        // ترجمة اسم المادة لشكل الطف لو حابب
+                        let subjectName = subject;
+                        if(subject === "hymns") subjectName = "ألحان";
+                        else if(subject === "coptic") subjectName = "قبطي";
+                        else if(subject === "rite") subjectName = "طقس كنسي";
+                        else if(subject === "bible") subjectName = "دراسة الكتاب";
+
+                        htmlContent += `
+                            <div class="file-card">
+                                <div class="file-info">
+                                    <i class="fa-solid fa-file-pdf file-icon"></i>
+                                    <div class="file-details">
+                                        <h3>${title}</h3>
+                                        <span>المادة: ${subjectName}</span>
+                                        <span>المرحلة: ${data.grade}</span>
+                                    </div>
+                                </div>
+                                <div class="file-actions">
+                                    <a href="${pdfUrl}" target="_blank" class="btn btn-view">
+                                        <i class="fa-solid fa-eye"></i> معاينة
+                                    </a>
+                                    <a href="${pdfUrl}" download class="btn btn-download">
+                                        <i class="fa-solid fa-download"></i> تحميل
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    container.innerHTML = htmlContent;
+
+                } catch (err) {
+                    console.error("خطأ في جلب الدروس:", err);
+                    document.getElementById("files-container").innerHTML = `
+                        <div class="no-files" style="color: #e74c3c;">
+                            <p>حدث خطأ أثناء تحميل الملفات.</p>
+                        </div>
+                    `;
+                }
+            } else {
+                // لو مش مسجل دخول يرجع لصفحة تسجيل الدخول
+                window.location.href = "../index.html";
+            }
+        });
+    </script>
+</body>
+</html>

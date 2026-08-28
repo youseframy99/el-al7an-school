@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استكمال البيانات - مدرسة الألحان</title>
+  <link rel="icon" href="../../assets/images/cross (2).png">
+  <link rel="stylesheet" href="../styles/main.css">
+  <link rel="stylesheet" href="./signup.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <button class="theme-toggle" id="theme-toggle">🌙 داكن</button>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <h1>مدرسة الألحان والخدمة</h1>
+      <img src="../../assets/images/archangel-michael.jpg" alt="شعار الكنيسة" class="logo">
+    </div>
+  </header>
+
+  <main class="auth-page">
+    <form id="complete-profile-form" class="auth-form">
+      <h2>أهلاً بيك! برجاء استكمال بيانات حسابك</h2>
+      <p style="text-align: center; color: var(--text-muted, #666); font-size: 0.9rem; margin-bottom: 20px;">
+        خطوة واحدة وتكون جاهز لاستخدام المنصة
+      </p>
+
+      <label for="fullName">الاسم الثلاثي</label>
+      <input type="text" id="fullName" required placeholder="اكتب اسمك الثلاثي">
+
+      <label for="whatsapp">رقم الواتساب</label>
+      <input type="tel" id="whatsapp" required placeholder="010xxxxxxxx">
+
+      <label for="accountType">نوع الحساب</label>
+      <select id="accountType" required>
+        <option value="" disabled selected>اختر النوع</option>
+        <option value="student">طالب</option>
+        <option value="servant">خادم</option>
+      </select>
+
+      <div id="student-fields" class="conditional-fields hidden">
+        <label for="studentGrade">المرحلة الدراسية</label>
+        <select id="studentGrade">
+          <option value="" disabled selected>اختر المرحلة</option>
+          <option value="kindergarten">حضانة</option>
+          <option value="primary_1_3">ابتدائي (1-3)</option>
+          <option value="primary_4_6">ابتدائي (4-6)</option>
+          <option value="preparatory">إعدادي</option>
+        </select>
+      </div>
+
+      <div id="servant-fields" class="conditional-fields hidden">
+        <label>المراحل المسؤول عنها</label>
+        <div class="checkbox-group" style="display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px;">
+          <label><input type="checkbox" name="servantGrade" value="kindergarten"> حضانة</label>
+          <label><input type="checkbox" name="servantGrade" value="primary_1_3"> ابتدائي (1-3)</label>
+          <label><input type="checkbox" name="servantGrade" value="primary_4_6"> ابتدائي (4-6)</label>
+          <label><input type="checkbox" name="servantGrade" value="preparatory"> إعدادي</label>
+        </div>
+
+        <label for="servantSubject">المادة</label>
+        <select id="servantSubject">
+          <option value="" disabled selected>اختر المادة</option>
+          <option value="coptic">قبطي</option>
+          <option value="rite">طقس</option>
+          <option value="bible">دراسة الكتاب</option>
+          <option value="hymns">ألحان</option>
+        </select>
+      </div>
+
+      <p id="error-msg" class="error hidden"></p>
+
+      <button type="submit">حفظ ودخول</button>
+    </form>
+  </main>
+
+  <script src="../theme.js"></script>
+  <script type="module">
+    import { auth, db } from "../config/firebase-config.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const form = document.getElementById("complete-profile-form");
+    const accountType = document.getElementById("accountType");
+    const studentFields = document.getElementById("student-fields");
+    const servantFields = document.getElementById("servant-fields");
+    const errorMsg = document.getElementById("error-msg");
+    const fullNameInput = document.getElementById("fullName");
+
+    let currentUser = null;
+
+    // تتبع حالة المستخدم والتأكد إنه مسجل دخول بفيسبوك أو جوجل
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        if (user.displayName) {
+          fullNameInput.value = user.displayName;
+        }
+        
+        // لو ملفه مكتمل أصلاً، نوجهه مباشرة بدل ما يملى البيانات تاني
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists() && snap.data().profileComplete !== false) {
+          redirectAfterLogin(snap.data().accountType);
+        }
+      } else {
+        window.location.href = "./login.html";
+      }
+    });
+
+    accountType.addEventListener("change", () => {
+      const isStudent = accountType.value === "student";
+      studentFields.classList.toggle("hidden", !isStudent);
+      servantFields.classList.toggle("hidden", isStudent);
+    });
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorMsg.classList.add("hidden");
+
+      if (!currentUser) return;
+
+      const fullName = fullNameInput.value.trim();
+      const whatsapp = document.getElementById("whatsapp").value.trim();
+      const type = accountType.value;
+
+      let profileData = {
+        fullName,
+        whatsapp,
+        email: currentUser.email || "",
+        accountType: type,
+        profileComplete: true,
+        createdAt: new Date().toISOString()
+      };
+
+      if (type === "student") {
+        const grade = document.getElementById("studentGrade").value;
+        if (!grade) return showError("من فضلك اختر المرحلة الدراسية");
+        profileData.grade = grade;
+        profileData.classId = grade;
+        profileData.points = 0;
+        profileData.level = 1;
+        profileData.attendanceRate = 0;
+      }
+
+      if (type === "servant") {
+        const grades = Array.from(
+          document.querySelectorAll('input[name="servantGrade"]:checked')
+        ).map(cb => cb.value);
+        const subject = document.getElementById("servantSubject").value;
+
+        if (grades.length === 0) return showError("اختر مرحلة واحدة على الأقل");
+        if (!subject) return showError("اختر المادة");
+
+        profileData.grades = grades;
+        profileData.subject = subject;
+      }
+
+      try {
+        // تحديث بيانات المستخدم في Firestore وتغيير profileComplete إلى true
+        await setDoc(doc(db, "users", currentUser.uid), profileData, { merge: true });
+        redirectAfterLogin(type);
+      } catch (err) {
+        console.error(err);
+        showError("حدث خطأ أثناء حفظ البيانات، حاول مرة أخرى.");
+      }
+    });
+
+    function redirectAfterLogin(type) {
+      window.location.href = type === "servant"
+        ? "./servant-dashboard.html"
+        : "../../index.html";
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>

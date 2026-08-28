@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة الكنترول - مدرسة الألحان</title>
+  <link rel="icon" href="../../assets/images/cross (2).png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../styles/servant-style.css">
+  <link rel="stylesheet" href="servant-control.css">
+</head>
+<body class="servant-page">
+
+  <!-- الهيدر -->
+  <header class="site-header" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 30px;">
+    
+    <!-- اليمين: الصورة واسم الخادم -->
+    <div class="user-profile-summary" style="display: flex; align-items: center; gap: 12px; flex: 1;">
+      <img src="../../assets/images/archangel-michael.jpg" alt="شعار الكنيسة" class="avatar" style="width: 45px; height: 45px; border-radius: 50%;">
+      <div>
+        <h1 id="servant-name-display" style="font-size: 16px; margin: 0;">جاري التحميل...</h1>
+      </div>
+    </div>
+    
+    <!-- المنتصف: عنوان اللوحة -->
+    <div class="header-center-title" style="flex: 1; text-align: center;">
+      <h2 style="font-size: 20px; margin: 0;">لوحة كنترول الخادم</h2>
+    </div>
+
+    <!-- اليسار: أزرار العودة والثيم -->
+    <div class="header-actions" style="display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex: 1;">
+      <button class="theme-toggle" id="theme-toggle" title="تغيير الثيم" style="background: none; border: 1px solid var(--border-color); border-radius: 50%; width: 35px; height: 35px; cursor: pointer;"><i class="fa-solid fa-moon"></i></button>
+      <a href="./servant-dashboard.html" class="logout-btn" title="العودة لوحة العرض" style="padding: 8px 15px; background: #e74c3c; color: white; border-radius: 6px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 5px;">
+        <i class="fa-solid fa-arrow-right"></i> العودة
+      </a>
+    </div>
+  </header>
+
+  <!-- المحتوى الرئيسي للكنترول -->
+  <main class="container servant-container">
+    
+    <div id="error-msg" class="error hidden"></div>
+    <div id="success-msg" class="success hidden"></div>
+
+    <!-- 1. قسم تسجيل الحضور والغياب -->
+    <section class="card-box">
+      <h3 class="section-title"><i class="fa-solid fa-calendar-check"></i> تسجيل الحضور والغياب الأسبوعي</h3>
+      <p class="section-desc">اختر طلاب الفصل الحاضرين في اجتماع اليوم ثم اضغط حفظ.</p>
+      
+      <div class="table-responsive">
+        <table id="attendance-table">
+          <thead>
+            <tr>
+              <th>اسم المخدوم</th>
+              <th class="text-center">حاضر</th>
+            </tr>
+          </thead>
+          <tbody id="attendance-table-body">
+            <tr>
+              <td colspan="2" class="text-center">جاري تحميل قائمة الطلاب...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <button type="button" id="save-attendance-btn" class="btn btn-success">
+        <i class="fa-solid fa-floppy-disk"></i> حفظ الحضور
+      </button>
+    </section>
+
+    <!-- 2. قسم رفع المنهج أو ملف PDF للدرس -->
+    <section class="card-box">
+      <h3 class="section-title"><i class="fa-solid fa-file-pdf"></i> رفع المنهج أو ملف PDF للمادة والمرحلة</h3>
+      <form id="upload-pdf-form" class="control-form">
+        
+        <!-- حقل عنوان الدرس -->
+        <div class="form-group">
+          <label for="lesson-title">عنوان الدرس أو اللحن</label>
+          <input type="text" id="lesson-title" required placeholder="مثال: القديس اثاناسيوس حامي الايمان - لحن هوس ايروف:">
+        </div>
+
+        <!-- قائمة اختيار المرحلة الدراسية -->
+        <div class="form-group">
+          <label for="lesson-grade">اختر المرحلة الدراسية</label>
+          <select id="lesson-grade" required class="form-control">
+            <option value="" disabled selected>-- اختر المرحلة الدراسية --</option>
+            <option value="حضانة">حضانة</option>
+            <option value="primary-1-3">أولى / تانية / تالتة ابتدائي</option>
+            <option value="primary-4-6">رابعة / خامسة / سادسة ابتدائي</option>
+            <option value="preparatory">المرحلة الإعدادية</option>
+          </select>
+        </div>
+
+        <!-- قائمة اختيار المادة -->
+        <div class="form-group">
+          <label for="lesson-subject">اختر المادة</label>
+          <select id="lesson-subject" required class="form-control">
+            <option value="" disabled selected>-- اختر المادة --</option>
+            <option value="hymns">الألحان</option>
+            <option value="coptic">اللغة القبطية</option>
+            <option value="rite">الطقس الكنسي</option>
+            <option value="bible">دراسة الكتاب</option>
+          </select>
+        </div>
+
+        <!-- حقل اختيار ملف الـ PDF -->
+        <div class="form-group">
+          <label for="lesson-pdf-file">اختر ملف الـ PDF من جهازك</label>
+          <input type="file" id="lesson-pdf-file" accept=".pdf" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+          <i class="fa-solid fa-upload"></i> رفع ونشر المنهج
+        </button>
+      </form>
+    </section>
+
+    <section class="card-box" style="margin-top: 20px;">
+      <h3 class="section-title"><i class="fa-solid fa-list-check"></i> إدارة ومتابعة الملفات المرفوعة</h3>
+      <div class="table-responsive">
+        <table class="control-table" style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #ddd; text-align: right;">
+              <th style="padding: 10px;">عنوان الدرس</th>
+              <th style="padding: 10px;">المرحلة</th>
+              <th style="padding: 10px;">المادة</th>
+              <th style="padding: 10px; text-align: center;">الإجراء</th>
+            </tr>
+          </thead>
+          <tbody id="lessons-table-body">
+            <tr><td colspan="4" style="text-align: center; padding: 15px;">جاري تحميل الملفات...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 3. قسم إنشاء الامتحانات (MCQ + مقالي) -->
+    <section class="card-box">
+      <h3 class="section-title"><i class="fa-solid fa-pen-to-square"></i> إنشاء امتحان أسبوعي جديد</h3>
+      <form id="create-quiz-form" class="control-form">
+        <div class="form-group">
+          <label for="quiz-title">عنوان الامتحان</label>
+          <input type="text" id="quiz-title" required placeholder="امتحان أسبوعي في الطقس والقبطي">
+        </div>
+
+        <div class="form-group">
+          <label for="quiz-grade">المرحلة الدراسية</label>
+          <select id="quiz-grade" required class="form-control">
+            <option value="" disabled selected>اختر المرحلة</option>
+            <option value="kindergarten">حضانة</option>
+            <option value="primary_1_3">ابتدائي (1-3)</option>
+            <option value="primary_4_6">ابتدائي (4-6)</option>
+            <option value="preparatory">إعدادي</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="quiz-subject">المادة</label>
+          <select id="quiz-subject" required class="form-control">
+            <option value="" disabled selected>اختر المادة</option>
+            <option value="coptic">قبطي</option>
+            <option value="rite">طقس</option>
+            <option value="bible">دراسة الكتاب</option>
+            <option value="hymns">ألحان</option>
+          </select>
+        </div>
+
+        <div class="question-builder-box">
+          <h4>إضافة سؤال جديد للاختبار</h4>
+          <div class="form-group">
+            <label for="q-text">نص السؤال</label>
+            <input type="text" id="q-text" placeholder="اكتب السؤال هنا...">
+          </div>
+          <div class="form-group">
+            <label for="q-type">نوع السؤال</label>
+            <select id="q-type">
+              <option value="mcq">اختيار من متعدد (يصحح أوتوماتيك)</option>
+              <option value="essay">مقالي (يحتاج تصحيح الخادم)</option>
+            </select>
+          </div>
+          
+          <div id="mcq-options-container" class="options-box">
+            <label>الاختيارات والإجابة الصحيحة:</label>
+            <input type="text" id="opt-1" placeholder="الاختيار الأول">
+            <input type="text" id="opt-2" placeholder="الاختيار الثاني">
+            <input type="text" id="opt-3" placeholder="الاختيار الثالث">
+            <input type="text" id="correct-opt" placeholder="الإجابة الصحيحة تماماً كما كتبتها">
+          </div>
+          <button type="button" id="add-question-btn" class="btn btn-secondary">
+            <i class="fa-solid fa-plus"></i> إضافة السؤال للقائمة
+          </button>
+        </div>
+
+        <div class="questions-preview-area">
+          <h5>الأسئلة المضافة لهذا الامتحان:</h5>
+          <ul id="questions-list-preview">
+            <li>لم يتم إضافة أسئلة بعد...</li>
+          </ul>
+        </div>
+
+        <button type="submit" class="btn btn-success">
+          <i class="fa-solid fa-check-double"></i> حفظ ونشر الامتحان النهائي
+        </button>
+      </form>
+    </section>
+
+    <!-- قسم إدارة الامتحانات الحالية -->
+    <section class="card-box manage-quizzes-section">
+      <h3 class="section-title"><i class="fa-solid fa-list"></i> الامتحانات النشطة / السابقة</h3>
+      <div id="admin-quizzes-list" class="quizzes-list-container" style="margin-top: 15px;">
+        <p>جاري تحميل الامتحانات...</p>
+      </div>
+    </section>
+    <div id="essay-grading-section" style="margin-top: 30px; background: var(--color-surface); padding: 20px; border-radius: 8px;">
+  <h3>📝 تصحيح الأسئلة المقالية لـ المخدومين</h3>
+  <div id="essays-to-grade-container">
+    <p>جاري تحميل إجابات المخدومين بانتظار التصحيح...</p>
+  </div>
+</div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../theme.js"></script>
+  <script type="module" src="servant-control.js"></script>
+</body>
+</html>
