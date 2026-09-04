@@ -6,6 +6,6 @@
     { "source": "/servant-control", "destination": "/src/pages/servant-control.html" },
     { "source": "/complete-profile", "destination": "/src/pages/complete-profile.html" },
     { "source": "/exam-room", "destination": "/src/pages/exam-room.html" },
-    { "source": "/student-curriculum", "destination": "/src/pages/student-curriculum.html" }
+    { "source": "/student-curriculum" , "destination": "/src/pages/student-curriculum.html" }
   ]
 }
