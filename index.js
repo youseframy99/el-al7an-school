@@ -126,7 +126,7 @@ async function loadAvailableExams(studentGrade) {
           <div style="background: var(--color-bg); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--color-border);">
             <h4 style="margin: 0 0 8px 0; color: var(--color-primary);">${exam.title || 'امتحان أسبوعي'}</h4>
             <p style="margin: 0 0 10px 0; font-size: 0.9rem; color: var(--color-text-muted);">المادة: ${exam.subject || '-'}</p>
-            <a href="src/pages/exam-room.html?examId=${examId}" class="btn-quiz" style="padding: 8px 14px; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 6px; display: inline-block; font-size: 0.9rem;">
+            <a href="/exam-room?examId=${examId}" class="btn-quiz" style="padding: 8px 14px; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 6px; display: inline-block; font-size: 0.9rem;">
               <i class="fa-solid fa-pen-to-square"></i> ابدأ الامتحان المقرر
             </a>
           </div>
