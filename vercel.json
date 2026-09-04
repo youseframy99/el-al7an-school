@@ -1,0 +1,9 @@
+{
+  "rewrites": [
+    { "source": "/signup", "destination": "/src/pages/signup.html" },
+    { "source": "/login", "destination": "/src/pages/login.html" }
+    { "source":  "servant-dashboard", "destination": "/src/pages/servant-dashboard.html"}
+    { "source":  "servant-control" , "destination" : "/src/pages/servant-control.html"}
+    { "source":  "" , "destination" : "index.html" }
+]
+}
