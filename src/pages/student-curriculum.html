@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المناهج وملفات PDF - مدرسة الألحان</title>
-    <link rel="icon" href="../../assets/images/cross (2).png">
+    <link rel="icon" href="/assets/images/cross (2).png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="../styles/servant-style.css"> <!-- أو ملف الـ CSS الخاص بالطالب عندك -->
+    <link rel="stylesheet" href="/src/styles/servant-style.css">
     <style>
         :root {
             --primary-color: #3498db;
@@ -119,7 +119,7 @@
             <h1 style="font-size: 1.4rem; color: #2c3e50; margin: 0;"><i class="fa-solid fa-book-open"></i> مناهج ودروس الخدمة</h1>
         </div>
         <div>
-            <a href="/" class="logout-btn" title="العودة لوحة العرض" style="padding: 8px 15px; background: #e74c3c; color: white; border-radius: 6px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 5px;">
+            <a href="/" class="logout-btn" title="العودة للرئيسية" style="padding: 8px 15px; background: #e74c3c; color: white; border-radius: 6px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 5px;">
                 <i class="fa-solid fa-arrow-right"></i> العودة
             </a>
         </div>
@@ -196,7 +196,6 @@
                         const subject = data.subject || "عام";
                         const pdfUrl = data.pdfUrl || "#";
                         
-                        // ترجمة اسم المادة لشكل الطف لو حابب
                         let subjectName = subject;
                         if(subject === "hymns") subjectName = "ألحان";
                         else if(subject === "coptic") subjectName = "قبطي";
@@ -236,7 +235,6 @@
                     `;
                 }
             } else {
-                // لو مش مسجل دخول يرجع لصفحة تسجيل الدخول
                 window.location.href = "/";
             }
         });

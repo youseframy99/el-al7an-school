@@ -1,13 +1,11 @@
 {
   "rewrites": [
     { "source": "/signup", "destination": "/src/pages/signup.html" },
-    { "source": "/signup.html", "destination": "/src/pages/signup.html" },
     { "source": "/login", "destination": "/src/pages/login.html" },
-    { "source": "/login.html", "destination": "/src/pages/login.html" },
     { "source": "/servant-dashboard", "destination": "/src/pages/servant-dashboard.html" },
-    { "source": "/servant-dashboard.html", "destination": "/src/pages/servant-dashboard.html" },
     { "source": "/servant-control", "destination": "/src/pages/servant-control.html" },
-    { "source": "/servant-control.html", "destination": "/src/pages/servant-control.html" },
-    { "source": "/complete-profile", "destination": "/src/pages/complete-profile.html" }
+    { "source": "/complete-profile", "destination": "/src/pages/complete-profile.html" },
+    { "source": "/exam-room", "destination": "/src/pages/exam-room.html" },
+    { "source": "/student-curriculum", "destination": "/src/pages/student-curriculum.html" }
   ]
 }
