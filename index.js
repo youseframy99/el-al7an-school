@@ -11,7 +11,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     await loadStudentDashboard(user);
   } else {
-    window.location.href = './src/pages/login.html';
+    window.location.href = '/login';
   }
 });
 
