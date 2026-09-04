@@ -98,7 +98,7 @@ onAuthStateChanged(auth, async (user) => {
       showError("حدث خطأ أثناء تحميل بيانات الكنترول.");
     }
   } else {
-    window.location.href = "../index.html";
+    window.location.href = "/";
   }
 });
 

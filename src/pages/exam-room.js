@@ -13,7 +13,7 @@ onAuthStateChanged(auth, async (user) => {
     currentStudent = user;
     if (!examId) {
       alert("رقم الامتحان غير مسجل!");
-      window.location.href = '../../index.html';
+      window.location.href = '/';
       return;
     }
     await loadExamDetails(examId);
@@ -35,7 +35,7 @@ async function loadExamDetails(id) {
         <div style="text-align: center; padding: 30px; background: #fff; border-radius: 8px; border: 1px solid var(--color-border);">
           <h3 style="color: #e74c3c; margin-bottom: 10px;">🚫 ممنوع تكرار الامتحان</h3>
           <p style="color: var(--color-text-muted);">تم رصد إجابتك مسبقاً لهذا الاختبار. شكراً لمشاركتك!</p>
-          <a href="../../index.html" class="btn" style="margin-top: 15px; display: inline-block; padding: 8px 16px; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 6px;">العودة للرئيسية</a>
+          <a href="/" class="btn" style="margin-top: 15px; display: inline-block; padding: 8px 16px; background: var(--color-primary); color: #fff; text-decoration: none; border-radius: 6px;">العودة للرئيسية</a>
         </div>
       `;
       document.getElementById("exam-form").style.display = "none";

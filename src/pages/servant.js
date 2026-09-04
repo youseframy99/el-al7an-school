@@ -101,7 +101,7 @@ async function verifyServantAccess(user) {
       // التأكد أن المستخدم خادم
       if (userData.accountType !== "servant" && userData.role !== "servant") {
         alert("عفواً، هذه الصفحة مخصصة للخدام فقط!");
-        window.location.href = './index.html';
+        window.location.href = '/';
         return;
       }
 

@@ -113,7 +113,7 @@ async function handleSocialLogin(provider) {
 function redirectAfterLogin(type) {
   window.location.href = type === "servant"
     ? "/servant-dashboard"
-    : "../../index.html";
+    : "/";
 }
 
 function showError(msg) {

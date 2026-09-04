@@ -130,7 +130,7 @@ function redirectAfterLogin(type) {
   console.log("6. جاري التوجيه حسب نوع الحساب:", type);
   window.location.href = type === "servant"
     ? "/servant-dashboard"
-    : "../../index.html";
+    : "/";
 }
 
 function showError(msg) {

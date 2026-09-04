@@ -7,8 +7,7 @@
     { "source": "/servant-dashboard", "destination": "/src/pages/servant-dashboard.html" },
     { "source": "/servant-dashboard.html", "destination": "/src/pages/servant-dashboard.html" },
     { "source": "/servant-control", "destination": "/src/pages/servant-control.html" },
-    { "source": "/servant-control.html", "destination": "/src/pages/servant-control.html" }
-    { "source": "/complete-profile", "destination": "src/pages/complete-profile.html"}
- 
-]
+    { "source": "/servant-control.html", "destination": "/src/pages/servant-control.html" },
+    { "source": "/complete-profile", "destination": "/src/pages/complete-profile.html" }
+  ]
 }
