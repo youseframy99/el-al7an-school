@@ -18,7 +18,7 @@ onAuthStateChanged(auth, async (user) => {
     }
     await loadExamDetails(examId);
   } else {
-    window.location.href = './login.html';
+    window.location.href = '/login';
   }
 });
 

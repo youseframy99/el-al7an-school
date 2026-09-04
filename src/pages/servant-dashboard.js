@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => {
-        window.location.href = './login.html';
+        window.location.href = '/login';
       }).catch((error) => {
         console.error("خطأ أثناء تسجيل الخروج:", error);
       });
@@ -73,7 +73,7 @@ onAuthStateChanged(auth, async (user) => {
       if (nameElem) nameElem.innerText = "خطأ في التحميل";
     }
   } else {
-    window.location.href = './login.html';
+    window.location.href = '/login';
   }
 });
 

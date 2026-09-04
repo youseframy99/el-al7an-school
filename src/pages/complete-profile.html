@@ -104,7 +104,7 @@
           redirectAfterLogin(snap.data().accountType);
         }
       } else {
-        window.location.href = "./login.html";
+        window.location.href = "/login";
       }
     });
 
@@ -168,7 +168,7 @@
 
     function redirectAfterLogin(type) {
       window.location.href = type === "servant"
-        ? "./servant-dashboard.html"
+        ? "/servant-dashboard"
         : "../../index.html";
     }
 

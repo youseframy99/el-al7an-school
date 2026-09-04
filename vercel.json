@@ -4,5 +4,6 @@
     { "source": "/login", "destination": "/src/pages/login.html" },
     { "source": "/servant-dashboard", "destination": "/src/pages/servant-dashboard.html" },
     { "source": "/servant-control", "destination": "/src/pages/servant-control.html" }
+    { "source": "/complete-profile", "destination": "src/pages/complete-profile.html"}
   ]
 }

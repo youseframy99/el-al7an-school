@@ -256,7 +256,7 @@ const logoutBtn = document.getElementById("logout-btn");
 if (logoutBtn) {
   logoutBtn.addEventListener("click", () => {
     signOut(auth).then(() => {
-      window.location.href = './src/pages/login.html';
+      window.location.href = '/login';
     }).catch((error) => {
       console.error("خطأ أثناء تسجيل الخروج:", error);
     });

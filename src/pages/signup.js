@@ -99,9 +99,9 @@ async function handleSocialLogin(provider) {
         createdAt: new Date().toISOString(),
         profileComplete: false
       });
-      window.location.href = "./complete-profile.html";
+      window.location.href = "/complete-profile";
     } else if (existing.data().profileComplete === false) {
-      window.location.href = "./complete-profile.html";
+      window.location.href = "/complete-profile";
     } else {
       redirectAfterLogin(existing.data().accountType);
     }
@@ -112,7 +112,7 @@ async function handleSocialLogin(provider) {
 
 function redirectAfterLogin(type) {
   window.location.href = type === "servant"
-    ? "./servant-dashboard.html"
+    ? "/servant-dashboard"
     : "../../index.html";
 }
 

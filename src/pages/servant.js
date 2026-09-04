@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", () => {
       signOut(auth).then(() => {
-        window.location.href = './src/pages/login.html';
+        window.location.href = '/login';
       }).catch((error) => {
         console.error("خطأ أثناء تسجيل الخروج:", error);
       });
@@ -85,7 +85,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     await verifyServantAccess(user);
   } else {
-    window.location.href = './src/pages/login.html';
+    window.location.href = '/login';
   }
 });
 

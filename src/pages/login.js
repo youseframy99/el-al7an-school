@@ -74,12 +74,12 @@ async function handleSocialLogin(provider) {
         createdAt: new Date().toISOString(),
         profileComplete: false
       });
-      window.location.href = "./complete-profile.html";
+      window.location.href = "/complete-profile";
       return;
     }
 
     if (existing.data().profileComplete === false) {
-      window.location.href = "./complete-profile.html";
+      window.location.href = "/complete-profile";
       return;
     }
 
@@ -129,7 +129,7 @@ async function routeAfterLogin(uid) {
 function redirectAfterLogin(type) {
   console.log("6. جاري التوجيه حسب نوع الحساب:", type);
   window.location.href = type === "servant"
-    ? "./servant-dashboard.html"
+    ? "/servant-dashboard"
     : "../../index.html";
 }
 
