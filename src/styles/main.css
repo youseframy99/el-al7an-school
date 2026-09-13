@@ -170,34 +170,63 @@ body.dark-mode textarea {
   color: #ffffff !important;
   border-color: #444444 !important;
 }
-/* حاوية الصفحة بالكامل عشان نعمل تأثير الـ 3D Perspective */
+/* منع المشاكل مع عناصر الصفحة الثابتة زي زر الثيم */
 body {
+  background-color: #121212;
   overflow-x: hidden;
-  perspective: 1000px;
-  background-color: #121212; /* لون خلفية داكن يعطي فخامة للباب */
+  margin: 0;
 }
 
-/* العنصر أو الفورم اللي هيتفتح كأنه باب */
-.auth-page, .auth-form {
-  animation: doorOpenEffect 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-  transform-origin: center center;
+/* طبقة الباب اللي بتغطي الشاشة أول ما تفتح */
+.church-door-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999; /* عشان تبقي فوق كل حاجة لحظة الفتح */
+  display: flex;
+  pointer-events: none; /* عشان لما تفتح الماوس يقدر يدوس وراها عادي */
+  perspective: 1500px;
 }
 
-/* تفاصيل أنيميشن الباب: يبدأ مكبر وقريب (أو مغطي الشاشة) بعدين ينكمش ويفتح لمكانه الطبيعي */
-@keyframes doorOpenEffect {
-  0% {
-    opacity: 0;
-    transform: scale(2) translateZ(-500px);
-    filter: blur(10px);
-  }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.2) translateZ(-100px);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1) translateZ(0);
-    filter: blur(0);
-  }
+/* الدرفة اليمين والدرفة الشمال للباب */
+.door-left, .door-right {
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, #2c221e, #1a1412); /* لون خشبي فاخر أو معدني داكن يليق بالكنيسة */
+  border: 4px solid #d4af37; /* إطار ذهبي فخم يعطي شكل الباب الحقيقي */
+  position: relative;
+  transition: transform 1.5s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+/* نقش أو زرار في نص الباب لزيادة الواقعية */
+.door-left::after, .door-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 100px;
+  background: #d4af37;
+  border-radius: 10px;
+  transform: translateY(-50%);
+}
+.door-left::after { right: 20px; }
+.door-right::after { left: 20px; }
+
+/* حركة الفتح للباب الشمال */
+.church-door-overlay.open .door-left {
+  transform: rotateY(-110deg);
+  transform-origin: left;
+}
+
+/* حركة الفتح للباب اليمين */
+.church-door-overlay.open .door-right {
+  transform: rotateY(110deg);
+  transform-origin: right;
+}
+
+/* إخفاء الأوفرلاي تماماً بعد ما الأنيميشن يخلص عشان ما يعكسش الماوس */
+.church-door-overlay.hidden-door {
+  display: none;
 }
