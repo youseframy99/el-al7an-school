@@ -187,7 +187,7 @@ body.dark-mode textarea {
   transition: opacity 0.8s ease;
 }
 
-/* حاوية الباب الاقتراب البطيء الهادئ (حوالي 5 ثواني) */
+/* حاوية الباب مع الاقتراب البطيء */
 .cinematic-door-container {
   width: 380px;
   height: 580px;
@@ -225,6 +225,7 @@ body.dark-mode textarea {
   border: 4px solid #ffffff;
   position: relative;
   box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.1);
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
 }
 
 /* النقوش القبطية والتراثية */
@@ -242,28 +243,38 @@ body.dark-mode textarea {
   writing-mode: vertical-rl;
 }
 
-/* المقابض */
-.door-left::after, .door-right::after {
+/* تعديل أماكن المقابض لتكون في منتصف الباب تماماً (مكان التقاء الدرفتين) */
+.door-left::after {
   content: '';
   position: absolute;
   top: 55%;
+  right: 12px; /* مقبض الدرفة اليسار على حافة اليمين (الوسط) */
   width: 10px;
   height: 90px;
   background: #ffffff;
   border-radius: 5px;
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
 }
-.door-left::after { right: 18px; }
-.door-right::after { left: 18px; }
 
-/* حركة فتح الباب: لما يزقوه لجوة (يكبر في الوش ويدخل في العمق مع تلاشي) */
-.church-door-overlay.open .cinematic-door-container {
-  transform: scale(2.8) translateZ(500px);
-  opacity: 0;
-  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease;
+.door-right::after {
+  content: '';
+  position: absolute;
+  top: 55%;
+  left: 12px; /* مقبض الدرفة اليمين على حافة اليسار (الوسط) */
+  width: 10px;
+  height: 90px;
+  background: #ffffff;
+  border-radius: 5px;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
 }
 
-/* التلاشي النهائي */
+/* حركة فتح الباب: زقه لجوة (تكبير الحاوية مع تلاشي لضمان ظهور الحركة) */
+.church-door-overlay.open .cinematic-door-container {
+  transform: scale(3.5) translateZ(800px);
+  opacity: 0;
+}
+
+/* التلاشي النهائي للطبقة */
 .church-door-overlay.fade-out {
   opacity: 0;
   pointer-events: none;
