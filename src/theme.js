@@ -32,11 +32,10 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. حقن CSS نظيف تماماً ومعزول
   const styleSheet = document.createElement("style");
   styleSheet.type = "text/css";
   styleSheet.innerHTML = `
-    .church-door-overlay-v2 {
+    .church-door-overlay-v3 {
       position: fixed;
       top: 0;
       left: 0;
@@ -47,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
       display: flex;
       justify-content: center;
       align-items: center;
-      perspective: 1500px;
+      perspective: 1200px;
       overflow: hidden;
       transition: opacity 0.8s ease;
     }
@@ -59,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       transform-style: preserve-3d;
       box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.22), inset 0 0 40px rgba(255, 255, 255, 0.1);
       border-radius: 4px;
+      transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s ease;
       animation: doorZoomIn 5.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
     @keyframes doorZoomIn {
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
       border: 4px solid #ffffff;
       position: relative;
       box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.1);
-      transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
+      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
     }
     .door-left-panel::before, .door-right-panel::before {
@@ -91,11 +91,11 @@ document.addEventListener("DOMContentLoaded", () => {
       writing-mode: vertical-rl;
     }
     
-    /* المقابض مرسومة صراحة كعناصر دقيقة في المنتصف تماماً */
+    /* المقابض ثابتة في النص بدقة (عدل الرقم ده لو حابب تحركها يمين أو شمال) */
     .handle-left-side {
       position: absolute;
       top: 55%;
-      right: 80px; /* على الحافة اليمين للدرفة الشمال (في المنتصف) */
+      right: 80px; 
       width: 10px;
       height: 90px;
       background: #ffffff;
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .handle-right-side {
       position: absolute;
       top: 55%;
-      left: 80px; /* على الحافة الشمال للدرفة اليمين (في المنتصف) */
+      left: 80px; 
       width: 10px;
       height: 90px;
       background: #ffffff;
@@ -113,26 +113,25 @@ document.addEventListener("DOMContentLoaded", () => {
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
     }
 
-    /* حركة الفتح للداخل بدون رقاص */
-    // استبدل جزء الـ CSS الخاص بالـ open والـ door بالآتي:
-    .church-door-overlay-v2.open .door-left-panel {
-      transform: translate3d(-150px, 0, 400px) rotateY(-35deg);
-      opacity: 0;
+    /* حركة صحيحة 100%: البابين بينفتحوا للداخل (كل دِرفة تلف على مفصلاتها الحقيقية في الأطراف لجوة العمق) */
+    .church-door-overlay-v3.open .door-left-panel {
+      transform: rotateY(-110deg);
+      transform-origin: left;
     }
-    .church-door-overlay-v2.open .door-right-panel {
-      transform: translate3d(150px, 0, 400px) rotateY(35deg);
-      opacity: 0;
+    .church-door-overlay-v3.open .door-right-panel {
+      transform: rotateY(110deg);
+      transform-origin: right;
     }
-    .church-door-overlay-v2.fade-out {
+    
+    .church-door-overlay-v3.fade-out {
       opacity: 0;
       pointer-events: none;
     }
   `;
   document.head.appendChild(styleSheet);
 
-  // 2. إنشاء الهيكل بالعناصر الجديدة كلياً لتفادي أي كاش قديم
   const overlay = document.createElement("div");
-  overlay.className = "church-door-overlay-v2";
+  overlay.className = "church-door-overlay-v3";
   
   const container = document.createElement("div");
   container.className = "cinematic-door-box";
@@ -154,7 +153,6 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.appendChild(container);
   document.body.appendChild(overlay);
 
-  // 3. التوقيتات الدقيقة للفتح والتلاشي
   setTimeout(() => {
     overlay.classList.add("open");
   }, 5300);
