@@ -32,7 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 document.addEventListener("DOMContentLoaded", () => {
-  // بناء المشهد المظلم والباب المنور من بعيد
   const doorOverlay = document.createElement("div");
   doorOverlay.className = "church-door-overlay";
   doorOverlay.innerHTML = `
@@ -43,19 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(doorOverlay);
 
-  // الكاميرا بتقرب ببطء لمدة 2.8 ثانية لحد ما نوصل للباب وتتضح الصلبان
-  // بعدين "مرة واحدة" يفتح البابين بقوة
+  // بعد ما الاقتراب البطيء الهادئ يخلص (حوالي 5.2 ثانية)، الباب يفتح بطريقة طبيعية
   setTimeout(() => {
     doorOverlay.classList.add("open");
-  }, 2900);
+  }, 5300);
 
-  // تلاشي الظلام فور فتح الباب عشان يظهر الفورم وراه بوضوح
+  // التلاشي بعد فتح الباب
   setTimeout(() => {
     doorOverlay.classList.add("fade-out");
-  }, 3800);
+  }, 6500);
 
-  // تنظيف العنصر تماماً من الصفحة عشان زر الثيم يشتغل بحرية
+  // مسح العنصر تماماً من DOM
   setTimeout(() => {
     doorOverlay.remove();
-  }, 4400);
+  }, 7300);
 });
