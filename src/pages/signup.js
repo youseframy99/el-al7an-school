@@ -150,3 +150,27 @@ function mapFirebaseError(code) {
   };
   return map[code] || "حصل خطأ، حاول تاني";
 }
+// --- فلترة إدخال رقم الواتساب (يمنع الحروف ويقف عند 11 رقم) ---
+const whatsappInput = document.getElementById("whatsapp");
+whatsappInput.addEventListener("input", (e) => {
+  let val = e.target.value.replace(/\D/g, "");
+  if (val.length > 11) val = val.slice(0, 11);
+  e.target.value = val;
+});
+
+// --- التعديل داخل حدث الـ submit للإيميل ---
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  errorMsg.classList.add("hidden");
+
+  const fullName = document.getElementById("fullName").value.trim();
+  const whatsapp = document.getElementById("whatsapp").value.trim();
+  
+  // تحقق من صحة رقم الواتساب
+  const whatsappRegex = /^(010|011|012|015)\d{8}$/;
+  if (!whatsappRegex.test(whatsapp)) {
+    return showError("رقم الواتساب غير صحيح! يجب أن يتكون من 11 رقماً ويبدأ بـ 010 أو 011 أو 012 أو 015");
+  }
+
+  const email = document.getElementById("email").value.trim();
+  // ... (باقي الكود زي ما هو)

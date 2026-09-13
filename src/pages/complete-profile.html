@@ -29,7 +29,7 @@
       <input type="text" id="fullName" required placeholder="اكتب اسمك الثلاثي">
 
       <label for="whatsapp">رقم الواتساب</label>
-      <input type="tel" id="whatsapp" required placeholder="010xxxxxxxx">
+      <input type="tel" id="whatsapp" required maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
 
       <label for="accountType">نوع الحساب</label>
       <select id="accountType" required>
@@ -66,6 +66,10 @@
           <option value="bible">دراسة الكتاب</option>
           <option value="hymns">ألحان</option>
         </select>
+
+        <!-- حقل كود التحقق السري للخدام -->
+        <label for="servantCode" style="margin-top: 15px;">ادخل كود الخادم</label>
+        <input type="password" id="servantCode">
       </div>
 
       <p id="error-msg" class="error hidden"></p>
@@ -75,6 +79,43 @@
   </main>
 
   <script src="../theme.js"></script>
+
+  <!-- 1. سكريبت واجهة المستخدم فورية الاستجابة بدون انتظار الفايربيز -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const accountType = document.getElementById("accountType");
+      const studentFields = document.getElementById("student-fields");
+      const servantFields = document.getElementById("servant-fields");
+      const whatsappInput = document.getElementById("whatsapp");
+
+      function updateUI() {
+        const val = accountType.value;
+        if (val === "student") {
+          studentFields.classList.remove("hidden");
+          servantFields.classList.add("hidden");
+        } else if (val === "servant") {
+          studentFields.classList.add("hidden");
+          servantFields.classList.remove("hidden");
+        } else {
+          studentFields.classList.add("hidden");
+          servantFields.classList.add("hidden");
+        }
+      }
+
+      accountType.addEventListener("change", updateUI);
+      updateUI(); // للتحديث في حالة إعادة التحميل
+
+      if (whatsappInput) {
+        whatsappInput.addEventListener("input", (e) => {
+          let val = e.target.value.replace(/\D/g, "");
+          if (val.length > 11) val = val.slice(0, 11);
+          e.target.value = val;
+        });
+      }
+    });
+  </script>
+
+  <!-- 2. سكريبت عمليات الفايربيز والحفظ في قاعدة البيانات -->
   <script type="module">
     import { auth, db } from "../config/firebase-config.js";
     import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -82,22 +123,19 @@
 
     const form = document.getElementById("complete-profile-form");
     const accountType = document.getElementById("accountType");
-    const studentFields = document.getElementById("student-fields");
-    const servantFields = document.getElementById("servant-fields");
     const errorMsg = document.getElementById("error-msg");
     const fullNameInput = document.getElementById("fullName");
+    const whatsappInput = document.getElementById("whatsapp");
 
     let currentUser = null;
 
-    // تتبع حالة المستخدم والتأكد إنه مسجل دخول بفيسبوك أو جوجل
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         currentUser = user;
-        if (user.displayName) {
+        if (user.displayName && !fullNameInput.value) {
           fullNameInput.value = user.displayName;
         }
         
-        // لو ملفه مكتمل أصلاً، نوجهه مباشرة بدل ما يملى البيانات تاني
         const userRef = doc(db, "users", user.uid);
         const snap = await getDoc(userRef);
         if (snap.exists() && snap.data().profileComplete !== false) {
@@ -108,12 +146,6 @@
       }
     });
 
-    accountType.addEventListener("change", () => {
-      const isStudent = accountType.value === "student";
-      studentFields.classList.toggle("hidden", !isStudent);
-      servantFields.classList.toggle("hidden", isStudent);
-    });
-
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       errorMsg.classList.add("hidden");
@@ -121,8 +153,15 @@
       if (!currentUser) return;
 
       const fullName = fullNameInput.value.trim();
-      const whatsapp = document.getElementById("whatsapp").value.trim();
+      const whatsapp = whatsappInput.value.trim();
+
+      const whatsappRegex = /^(010|011|012|015)\d{8}$/;
+      if (!whatsappRegex.test(whatsapp)) {
+        return showError("رقم الواتساب غير صحيح! يجب أن يبدأ بـ 010, 011, 012 أو 015 ويتكون من 11 رقماً");
+      }
+
       const type = accountType.value;
+      if (!type) return showError("من فضلك اختر نوع الحساب");
 
       let profileData = {
         fullName,
@@ -148,16 +187,34 @@
           document.querySelectorAll('input[name="servantGrade"]:checked')
         ).map(cb => cb.value);
         const subject = document.getElementById("servantSubject").value;
+        const servantCodeInput = document.getElementById("servantCode").value.trim();
 
         if (grades.length === 0) return showError("اختر مرحلة واحدة على الأقل");
         if (!subject) return showError("اختر المادة");
+        if (!servantCodeInput) return showError("من فضلك أدخل كود التحقق الخاص بالخدام");
+
+        try {
+          const configRef = doc(db, "settings", "config");
+          const configSnap = await getDoc(configRef);
+
+          if (!configSnap.exists()) {
+            return showError("خطأ في إعدادات النظام، تواصل مع المسؤول");
+          }
+
+          const correctCode = configSnap.data().servantSecretCode;
+
+          if (servantCodeInput !== correctCode) {
+            return showError("كود التحقق الخاص بالخدام غير صحيح!");
+          }
+        } catch (err) {
+          return showError("حدث خطأ أثناء التحقق من الكود");
+        }
 
         profileData.grades = grades;
         profileData.subject = subject;
       }
 
       try {
-        // تحديث بيانات المستخدم في Firestore وتغيير profileComplete إلى true
         await setDoc(doc(db, "users", currentUser.uid), profileData, { merge: true });
         redirectAfterLogin(type);
       } catch (err) {
