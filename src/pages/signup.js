@@ -54,9 +54,29 @@ form.addEventListener("submit", async (e) => {
       document.querySelectorAll('input[name="servantGrade"]:checked')
     ).map(cb => cb.value);
     const subject = document.getElementById("servantSubject").value;
+    const servantCodeInput = document.getElementById("servantCode").value.trim();
 
     if (grades.length === 0) return showError("اختر مرحلة واحدة على الأقل");
     if (!subject) return showError("اختر المادة");
+    if (!servantCodeInput) return showError("من فضلك أدخل كود التحقق الخاص بالخدام");
+
+    try {
+      // جلب الكود الصحيح من قاعدة البيانات من جدول الإعدادات
+      const configRef = doc(db, "settings", "config");
+      const configSnap = await getDoc(configRef);
+
+      if (!configSnap.exists()) {
+        return showError("خطأ في إعدادات النظام، تواصل مع المسؤول");
+      }
+
+      const correctCode = configSnap.data().servantSecretCode;
+
+      if (servantCodeInput !== correctCode) {
+        return showError("كود التحقق الخاص بالخدام غير صحيح!");
+      }
+    } catch (err) {
+      return showError("حدث خطأ أثناء التحقق من الكود");
+    }
 
     profileData.grades = grades;
     profileData.subject = subject;
