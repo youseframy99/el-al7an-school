@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
       display: flex;
       justify-content: center;
       align-items: center;
+      perspective: 1200px;
       overflow: hidden;
       transition: opacity 0.8s ease;
     }
@@ -55,14 +56,15 @@ document.addEventListener("DOMContentLoaded", () => {
       height: 580px;
       display: flex;
       position: relative;
+      transform-style: preserve-3d;
       box-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
       animation: cameraApproach 5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
     }
 
     @keyframes cameraApproach {
-      0% { transform: scale(0.05); opacity: 0; }
+      0% { transform: scale(0.05) translateZ(-3000px); opacity: 0; }
       20% { opacity: 1; }
-      100% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(1) translateZ(0); opacity: 1; }
     }
 
     .door-panel-left, .door-panel-right {
@@ -71,7 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
       background: linear-gradient(135deg, #0a0a0a, #020202);
       border: 3px solid #ffffff;
       position: relative;
-      transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+      transform-style: preserve-3d;
+      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.08);
     }
 
@@ -89,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
       writing-mode: vertical-rl;
     }
 
-    /* المقابض في المنتصف تماماً */
+    /* المقابض في النص بالمللي (يمين الدرفة الشمال، وشمال الدرفة اليمين) */
     .door-panel-left::after {
       content: '';
       position: absolute;
@@ -114,13 +117,15 @@ document.addEventListener("DOMContentLoaded", () => {
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
     }
 
-    /* فتح حقيقي ونظيف: الدرفة الشمال تزحف أقصى الشمال، واليمين تزحف أقصى اليمين من غير أي لفة أو هبل */
+    /* الصح هنا: المفصلات على الأطراف الخارجية، والدوران يدخل لجوة الشاشة (Push-in) من غير دوران عشوائي */
     .cinematic-church-overlay.open-portal .door-panel-left {
-      transform: translateX(-100%);
+      transform-origin: left center;
+      transform: rotateY(-100deg);
     }
 
     .cinematic-church-overlay.open-portal .door-panel-right {
-      transform: translateX(100%);
+      transform-origin: right center;
+      transform: rotateY(100deg);
     }
 
     .cinematic-church-overlay.fade-out-portal {
