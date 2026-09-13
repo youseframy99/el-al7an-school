@@ -98,11 +98,16 @@ form.addEventListener("submit", async (e) => {
 });
 
 // --- تسجيل بجوجل / فيسبوك ---
+// --- تسجيل بجوجل / فيسبوك ---
 document.getElementById("google-btn").addEventListener("click", () => {
   handleSocialLogin(new GoogleAuthProvider());
 });
+
 document.getElementById("facebook-btn").addEventListener("click", () => {
-  handleSocialLogin(new FacebookAuthProvider());
+  const facebookProvider = new FacebookAuthProvider();
+  facebookProvider.addScope('email'); // طلب الإيميل من فيسبوك صراحة
+  
+  handleSocialLogin(facebookProvider);
 });
 
 async function handleSocialLogin(provider) {
