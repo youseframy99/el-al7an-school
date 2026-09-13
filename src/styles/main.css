@@ -170,104 +170,96 @@ body.dark-mode textarea {
   color: #ffffff !important;
   border-color: #444444 !important;
 }
-/* طبقة الظلام الدامس تغطي الشاشة بالكامل */
+/* طبقة الباب التي تملأ الشاشة بالكامل من أول لحظة (مثل تأثير تشغيل الموبايل) */
 .church-door-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: #050505; /* سواد حالك يمثل الغرفة المظلمة */
+  background-color: #050505;
   z-index: 99999;
   display: flex;
   justify-content: center;
   align-items: center;
-  perspective: 1500px;
+  perspective: 2000px;
   overflow: hidden;
-  transition: opacity 0.5s ease;
+  transition: opacity 0.6s ease;
 }
 
-/* حاوية الباب اللي بتبدأ بعيدة وصغيرة في الظلام بعدين تقرب مرة واحدة */
+/* حاوية الباب تملأ الشاشة بالكامل من الحواف */
 .cinematic-door-container {
-  width: 400px;
-  height: 600px;
+  width: 100%;
+  height: 100%;
   display: flex;
   position: relative;
   transform-style: preserve-3d;
-  /* أنيميشن التقريب ببطء في الأول ثم الاندفاع العنيف */
-  animation: cameraZoomIn 2.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-  box-shadow: 0 0 80px rgba(212, 175, 55, 0.15); /* إضاءة خفيفة جداً حول الباب في الظلام */
 }
 
-@keyframes cameraZoomIn {
-  0% {
-    transform: scale(0.1) translateZ(-1200px);
-    opacity: 0;
-  }
-  30% {
-    opacity: 1; /* الباب يظهر بوضوح في الظلام */
-  }
-  80% {
-    transform: scale(1) translateZ(0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.1) translateZ(100px); /* تقريب أخير مفاجئ */
-    opacity: 1;
-  }
-}
-
-/* درفات الباب الأثري الخشبي */
+/* درفات الباب (نصف الشاشة يمين ونصفها شمال تماماً) */
 .door-left, .door-right {
   width: 50%;
   height: 100%;
-  background: linear-gradient(135deg, #1f1612, #0d0a08); /* خشب كنسي عتيق داكن */
-  border: 5px solid #b89728; /* إطار ذهبي نحاسي أثري */
+  background: linear-gradient(135deg, #181210, #0a0807); /* خشب كنسي داكن وأنيق */
+  border: 6px solid #b89728; /* إطار ذهبي محيط بكل الشاشة */
   position: relative;
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
-  transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.95);
+  transition: transform 1.6s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
-/* محاكاة النقوش القبطية (Crosses & Coptic motifs) باستخدام التصميم البصري */
+/* النقوش القبطية الواضحة في منتصف كل درفة */
 .door-left::before, .door-right::before {
-  content: '☩  ✝  ☩'; /* رموز صلبان ونقوش قبطية تعطي الطابع الأثري */
+  content: '☩  ✝  ☩';
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   color: #b89728;
-  font-size: 28px;
-  letter-spacing: 10px;
-  opacity: 0.8;
-  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+  font-size: 36px;
+  letter-spacing: 15px;
+  opacity: 0.85;
+  text-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
 }
 
-/* مقابض الباب الأثري */
-.door-left::after, .door-right::after {
+/* مقابض الباب في المنتصف تماماً (مكان التقاء الدرفتين) */
+.door-left::after {
   content: '';
   position: absolute;
-  top: 55%;
-  width: 14px;
-  height: 90px;
+  top: 50%;
+  right: 25px;
+  width: 16px;
+  height: 140px;
   background: #d4af37;
-  border-radius: 6px;
-  box-shadow: 0 0 15px rgba(212,175,55,0.8);
+  border-radius: 8px;
+  transform: translateY(-50%);
+  box-shadow: 0 0 20px rgba(212,175,55,0.8);
 }
-.door-left::after { right: 20px; }
-.door-right::after { left: 20px; }
 
-/* وقت الفتح: لما الكلاس open يشتغل، البابين يتفتحوا على مصراعيهم للخارج */
+.door-right::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 25px;
+  width: 16px;
+  height: 140px;
+  background: #d4af37;
+  border-radius: 8px;
+  transform: translateY(-50%);
+  box-shadow: 0 0 20px rgba(212,175,55,0.8);
+}
+
+/* حركة فتح البابين (الشمال يلف شمال، واليمين يلف يمين بانسيابية الموبايل) */
 .church-door-overlay.open .door-left {
-  transform: rotateY(-115deg);
+  transform: rotateY(-105deg);
   transform-origin: left;
 }
 
 .church-door-overlay.open .door-right {
-  transform: rotateY(115deg);
+  transform: rotateY(105deg);
   transform-origin: right;
 }
 
-/* تلاشي الطبقة السوداء بعد فتح الباب فوراً لتبان صفحة الدخول وراها */
+/* التلاشي السريع بعد ما الدرف تفتح بالكامل */
 .church-door-overlay.fade-out {
   opacity: 0;
   pointer-events: none;

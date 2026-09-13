@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 document.addEventListener("DOMContentLoaded", () => {
-  // إنشاء طبقة الظلام والغرفة المظلمة والباب الأثري
+  // بناء الباب ليغطي الشاشة بالكامل من لحظة التحميل
   const doorOverlay = document.createElement("div");
   doorOverlay.className = "church-door-overlay";
   doorOverlay.innerHTML = `
@@ -43,18 +43,18 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(doorOverlay);
 
-  // بعد 2.2 ثانية (لما الكاميرا تقرب وتوصل للباب)، ابدأ افتح البابين
+  // أول ما الصفحة تفتح (زي ومضة الموبايل)، الباب يبدأ يفتح فوراً بانسياق فخم
   setTimeout(() => {
     doorOverlay.classList.add("open");
-  }, 2200);
+  }, 300);
 
-  // بعد ما الباب يفتح ويتشلع، نعمل Fade out للظلام عشان تظهر صفحة الدخول بوضوح
+  // عمل تداخل وتلاشي للطبقة بعد اكتمال الفتح
   setTimeout(() => {
     doorOverlay.classList.add("fade-out");
-  }, 3200);
+  }, 1600);
 
-  // مسح العنصر تماماً من الـ DOM بعد انتهاء المشهد عشان الثيم والزرار يشتغلوا بحرية تامة
+  // إزالة العنصر نهائياً عشان زرار الثيم يشتغل بكل راحة
   setTimeout(() => {
     doorOverlay.remove();
-  }, 3800);
+  }, 2300);
 });
