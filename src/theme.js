@@ -47,7 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
       justify-content: center;
       align-items: center;
       perspective: 1200px;
-      overflow: hidden;
+      /* تم إزالة overflow: hidden لضمان عدم تسطيح الـ 3D */
       transition: opacity 0.8s ease;
     }
 
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       position: relative;
       transform-style: preserve-3d;
       box-shadow: 0 0 70px rgba(255, 255, 255, 0.2);
-      animation: smoothCameraApproach 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: smoothCameraApproach 2.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
     @keyframes smoothCameraApproach {
@@ -73,12 +73,11 @@ document.addEventListener("DOMContentLoaded", () => {
       border: 3px solid #ffffff;
       position: relative;
       transform-style: preserve-3d;
-      backface-visibility: hidden;
       transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
       box-shadow: inset 0 0 45px rgba(255, 255, 255, 0.08);
     }
 
-    /* النقوش */
+    /* النقوش والصلبان */
     .door-leaf::before {
       content: '☩ ☩ ☩';
       position: absolute;
@@ -93,32 +92,32 @@ document.addEventListener("DOMContentLoaded", () => {
       writing-mode: vertical-rl;
     }
 
-    /* المقابض: تم تعديل الموضع إلى 90px بناءً على طلبك */
+    /* المقابض: ملتصقة تماماً بفاصل المنتصف */
     .door-handle {
       position: absolute;
-      top: 55%;
-      width: 10px;
+      top: 50%;
+      width: 8px;
       height: 85px;
       background: #ffffff;
       border-radius: 4px;
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
-      transform: translateZ(2px);
+      transform: translateY(-50%) translateZ(3px);
     }
 
-    .door-leaf-left .door-handle { right: 90px; }
-    .door-leaf-right .door-handle { left: 90px; }
+    .door-leaf-left .door-handle { right: 2px; }
+    .door-leaf-right .door-handle { left: 2px; }
 
-    /* مفصلات الأبواب */
+    /* المفصلات الخارجية */
     .door-leaf-left { transform-origin: left center; }
     .door-leaf-right { transform-origin: right center; }
 
-    /* الدوران للداخل (Push-In) بعيداً عن الشاشة */
+    /* الفتح للداخل بدقة 82 درجة لمنع اختفاء الوجه الخلفي */
     #church-door-active-overlay.door-is-open .door-leaf-left {
-      transform: rotateY(95deg);  /* موجب = دخول لداخل الشاشة */
+      transform: rotateY(82deg);
     }
 
     #church-door-active-overlay.door-is-open .door-leaf-right {
-      transform: rotateY(-95deg); /* سالب = دخول لداخل الشاشة */
+      transform: rotateY(-82deg);
     }
 
     #church-door-active-overlay.fade-out-portal {
@@ -145,13 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   setTimeout(() => {
     overlay.classList.add("door-is-open");
-  }, 3000);
+  }, 2700);
 
   setTimeout(() => {
     overlay.classList.add("fade-out-portal");
-  }, 4300);
+  }, 4000);
 
   setTimeout(() => {
     overlay.remove();
-  }, 5200);
+  }, 4900);
 });
