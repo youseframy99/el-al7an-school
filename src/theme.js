@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .handle-left-side {
       position: absolute;
       top: 55%;
-      right: 125px; /* على الحافة اليمين للدرفة الشمال (في المنتصف) */
+      right: 80px; /* على الحافة اليمين للدرفة الشمال (في المنتصف) */
       width: 10px;
       height: 90px;
       background: #ffffff;
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .handle-right-side {
       position: absolute;
       top: 55%;
-      left: 125px; /* على الحافة الشمال للدرفة اليمين (في المنتصف) */
+      left: 80px; /* على الحافة الشمال للدرفة اليمين (في المنتصف) */
       width: 10px;
       height: 90px;
       background: #ffffff;
