@@ -32,18 +32,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. الحقن بـ CSS نظيف ومضمون 100% بعيد عن ملفات الكاش
+  // 1. حقن CSS نظيف تماماً ومعزول
   const styleSheet = document.createElement("style");
   styleSheet.type = "text/css";
   styleSheet.innerHTML = `
-    .church-door-overlay {
+    .church-door-overlay-v2 {
       position: fixed;
       top: 0;
       left: 0;
       width: 100vw;
       height: 100vh;
       background-color: #020202;
-      z-index: 99999;
+      z-index: 999999;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       overflow: hidden;
       transition: opacity 0.8s ease;
     }
-    .cinematic-door-container {
+    .cinematic-door-box {
       width: 380px;
       height: 580px;
       display: flex;
@@ -59,15 +59,15 @@ document.addEventListener("DOMContentLoaded", () => {
       transform-style: preserve-3d;
       box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.22), inset 0 0 40px rgba(255, 255, 255, 0.1);
       border-radius: 4px;
-      animation: approachDoorSlow 5.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      animation: doorZoomIn 5.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
     }
-    @keyframes approachDoorSlow {
+    @keyframes doorZoomIn {
       0% { transform: scale(0.05) translateZ(-3000px); opacity: 0; }
       15% { opacity: 1; }
       90% { transform: scale(1) translateZ(0); opacity: 1; }
       100% { transform: scale(1.02) translateZ(20px); opacity: 1; }
     }
-    .door-left, .door-right {
+    .door-left-panel, .door-right-panel {
       width: 50%;
       height: 100%;
       background: linear-gradient(135deg, #0d0d0d, #030303);
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
       transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1);
       transform-style: preserve-3d;
     }
-    .door-left::before, .door-right::before {
+    .door-left-panel::before, .door-right-panel::before {
       content: '☩ ☩ ☩';
       position: absolute;
       top: 40%;
@@ -90,65 +90,79 @@ document.addEventListener("DOMContentLoaded", () => {
       text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
       writing-mode: vertical-rl;
     }
-    /* المقابض في المنتصف تماماً وبكل إصرار وعناد */
-    .door-left::after {
-      content: '';
+    
+    /* المقابض مرسومة صراحة كعناصر دقيقة في المنتصف تماماً */
+    .handle-left-side {
       position: absolute;
       top: 55%;
-      right: 12px;
+      right: 12px; /* على الحافة اليمين للدرفة الشمال (في المنتصف) */
       width: 10px;
       height: 90px;
       background: #ffffff;
       border-radius: 5px;
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
     }
-    .door-right::after {
-      content: '';
+    .handle-right-side {
       position: absolute;
       top: 55%;
-      left: 12px;
+      left: 12px; /* على الحافة الشمال للدرفة اليمين (في المنتصف) */
       width: 10px;
       height: 90px;
       background: #ffffff;
       border-radius: 5px;
       box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
     }
-    .church-door-overlay.open .door-left {
+
+    /* حركة الفتح للداخل بدون رقاص */
+    .church-door-overlay-v2.open .door-left-panel {
       transform: rotateY(-110deg);
       transform-origin: left;
     }
-    .church-door-overlay.open .door-right {
+    .church-door-overlay-v2.open .door-right-panel {
       transform: rotateY(110deg);
       transform-origin: right;
     }
-    .church-door-overlay.fade-out {
+    .church-door-overlay-v2.fade-out {
       opacity: 0;
       pointer-events: none;
     }
   `;
   document.head.appendChild(styleSheet);
 
-  // 2. إنشاء الهيكل في الـ DOM
-  const doorOverlay = document.createElement("div");
-  doorOverlay.className = "church-door-overlay";
-  doorOverlay.innerHTML = `
-    <div class="cinematic-door-container">
-      <div class="door-left"></div>
-      <div class="door-right"></div>
-    </div>
-  `;
-  document.body.appendChild(doorOverlay);
+  // 2. إنشاء الهيكل بالعناصر الجديدة كلياً لتفادي أي كاش قديم
+  const overlay = document.createElement("div");
+  overlay.className = "church-door-overlay-v2";
+  
+  const container = document.createElement("div");
+  container.className = "cinematic-door-box";
 
-  // 3. التوقيتات للفتح والتلاشي
+  const doorLeft = document.createElement("div");
+  doorLeft.className = "door-left-panel";
+  const handleLeft = document.createElement("div");
+  handleLeft.className = "handle-left-side";
+  doorLeft.appendChild(handleLeft);
+
+  const doorRight = document.createElement("div");
+  doorRight.className = "door-right-panel";
+  const handleRight = document.createElement("div");
+  handleRight.className = "handle-right-side";
+  doorRight.appendChild(handleRight);
+
+  container.appendChild(doorLeft);
+  container.appendChild(doorRight);
+  overlay.appendChild(container);
+  document.body.appendChild(overlay);
+
+  // 3. التوقيتات الدقيقة للفتح والتلاشي
   setTimeout(() => {
-    doorOverlay.classList.add("open");
+    overlay.classList.add("open");
   }, 5300);
 
   setTimeout(() => {
-    doorOverlay.classList.add("fade-out");
+    overlay.classList.add("fade-out");
   }, 6200);
 
   setTimeout(() => {
-    doorOverlay.remove();
+    overlay.remove();
   }, 7000);
 });
