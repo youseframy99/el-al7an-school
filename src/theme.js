@@ -31,21 +31,30 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
-// --- كود أنيميشن الباب يشتغل مع ملف الثيم المضمون ---
 document.addEventListener("DOMContentLoaded", () => {
+  // إنشاء طبقة الظلام والغرفة المظلمة والباب الأثري
   const doorOverlay = document.createElement("div");
   doorOverlay.className = "church-door-overlay";
   doorOverlay.innerHTML = `
-    <div class="door-left"></div>
-    <div class="door-right"></div>
+    <div class="cinematic-door-container">
+      <div class="door-left"></div>
+      <div class="door-right"></div>
+    </div>
   `;
   document.body.appendChild(doorOverlay);
 
+  // بعد 2.2 ثانية (لما الكاميرا تقرب وتوصل للباب)، ابدأ افتح البابين
   setTimeout(() => {
     doorOverlay.classList.add("open");
-  }, 200);
+  }, 2200);
 
+  // بعد ما الباب يفتح ويتشلع، نعمل Fade out للظلام عشان تظهر صفحة الدخول بوضوح
+  setTimeout(() => {
+    doorOverlay.classList.add("fade-out");
+  }, 3200);
+
+  // مسح العنصر تماماً من الـ DOM بعد انتهاء المشهد عشان الثيم والزرار يشتغلوا بحرية تامة
   setTimeout(() => {
     doorOverlay.remove();
-  }, 1700);
+  }, 3800);
 });

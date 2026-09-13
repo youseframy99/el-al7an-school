@@ -170,48 +170,105 @@ body.dark-mode textarea {
   color: #ffffff !important;
   border-color: #444444 !important;
 }
+/* طبقة الظلام الدامس تغطي الشاشة بالكامل */
 .church-door-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
+  background-color: #050505; /* سواد حالك يمثل الغرفة المظلمة */
   z-index: 99999;
   display: flex;
-  pointer-events: none;
+  justify-content: center;
+  align-items: center;
   perspective: 1500px;
   overflow: hidden;
+  transition: opacity 0.5s ease;
 }
 
+/* حاوية الباب اللي بتبدأ بعيدة وصغيرة في الظلام بعدين تقرب مرة واحدة */
+.cinematic-door-container {
+  width: 400px;
+  height: 600px;
+  display: flex;
+  position: relative;
+  transform-style: preserve-3d;
+  /* أنيميشن التقريب ببطء في الأول ثم الاندفاع العنيف */
+  animation: cameraZoomIn 2.2s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  box-shadow: 0 0 80px rgba(212, 175, 55, 0.15); /* إضاءة خفيفة جداً حول الباب في الظلام */
+}
+
+@keyframes cameraZoomIn {
+  0% {
+    transform: scale(0.1) translateZ(-1200px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1; /* الباب يظهر بوضوح في الظلام */
+  }
+  80% {
+    transform: scale(1) translateZ(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.1) translateZ(100px); /* تقريب أخير مفاجئ */
+    opacity: 1;
+  }
+}
+
+/* درفات الباب الأثري الخشبي */
 .door-left, .door-right {
   width: 50%;
   height: 100%;
-  background: linear-gradient(135deg, #2c221e, #1a1412);
-  border: 4px solid #d4af37;
+  background: linear-gradient(135deg, #1f1612, #0d0a08); /* خشب كنسي عتيق داكن */
+  border: 5px solid #b89728; /* إطار ذهبي نحاسي أثري */
   position: relative;
-  transition: transform 1.4s cubic-bezier(0.77, 0, 0.175, 1);
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+  transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
 }
 
+/* محاكاة النقوش القبطية (Crosses & Coptic motifs) باستخدام التصميم البصري */
+.door-left::before, .door-right::before {
+  content: '☩  ✝  ☩'; /* رموز صلبان ونقوش قبطية تعطي الطابع الأثري */
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #b89728;
+  font-size: 28px;
+  letter-spacing: 10px;
+  opacity: 0.8;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+/* مقابض الباب الأثري */
 .door-left::after, .door-right::after {
   content: '';
   position: absolute;
-  top: 50%;
-  width: 18px;
-  height: 120px;
+  top: 55%;
+  width: 14px;
+  height: 90px;
   background: #d4af37;
-  border-radius: 8px;
-  transform: translateY(-50%);
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(212,175,55,0.8);
 }
-.door-left::after { right: 25px; }
-.door-right::after { left: 25px; }
+.door-left::after { right: 20px; }
+.door-right::after { left: 20px; }
 
+/* وقت الفتح: لما الكلاس open يشتغل، البابين يتفتحوا على مصراعيهم للخارج */
 .church-door-overlay.open .door-left {
-  transform: rotateY(-110deg);
+  transform: rotateY(-115deg);
   transform-origin: left;
 }
 
 .church-door-overlay.open .door-right {
-  transform: rotateY(110deg);
+  transform: rotateY(115deg);
   transform-origin: right;
+}
+
+/* تلاشي الطبقة السوداء بعد فتح الباب فوراً لتبان صفحة الدخول وراها */
+.church-door-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
 }
