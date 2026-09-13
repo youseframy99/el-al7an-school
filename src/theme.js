@@ -115,11 +115,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* حركة صحيحة 100%: البابين بينفتحوا للداخل (كل دِرفة تلف على مفصلاتها الحقيقية في الأطراف لجوة العمق) */
     .church-door-overlay-v3.open .door-left-panel {
-      transform: rotateY(110deg);
+      transform: rotateY(95deg);
       transform-origin: right;
     }
     .church-door-overlay-v3.open .door-right-panel {
-      transform: rotateY(-110deg);
+      transform: rotateY(-95deg);
       transform-origin: left;
     }
     
