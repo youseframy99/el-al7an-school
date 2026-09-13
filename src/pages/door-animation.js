@@ -1,3 +1,5 @@
+console.log("🔥 ملف الباب اشتغل وبدأ التنفيذ!");
+
 document.addEventListener("DOMContentLoaded", () => {
   // إنشاء هيكل الباب ديناميكياً
   const doorOverlay = document.createElement("div");
@@ -13,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     doorOverlay.classList.add("open");
   }, 200);
 
-  // إزالة العنصر تماماً بعد انتهاء الحركة عشان ما يلمسش أي زرار أو يأثر على الثيم
+  // إزالة العنصر تماماً بعد انتهاء الحركة
   setTimeout(() => {
     doorOverlay.remove();
   }, 1700);
