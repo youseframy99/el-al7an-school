@@ -187,7 +187,7 @@ body.dark-mode textarea {
   transition: opacity 0.8s ease;
 }
 
-/* حاوية الباب مع زيادة وقت الاقتراب (أبطأ بـ 3 ثواني إضافية من الأول) */
+/* حاوية الباب الاقتراب البطيء الهادئ (حوالي 5 ثواني) */
 .cinematic-door-container {
   width: 380px;
   height: 580px;
@@ -225,12 +225,9 @@ body.dark-mode textarea {
   border: 4px solid #ffffff;
   position: relative;
   box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.1);
-  /* حركة فتح طبيعية وواقعية تماماً (زاوية باب عادية غير معقدة) */
-  transition: transform 1.8s cubic-bezier(0.25, 1, 0.5, 1);
-  transform-origin: center;
 }
 
-/* نقوش قبطية وتراثية أكثر دقة وأناقة */
+/* النقوش القبطية والتراثية */
 .door-left::before, .door-right::before {
   content: '☩ ☩ ☩';
   position: absolute;
@@ -242,10 +239,10 @@ body.dark-mode textarea {
   letter-spacing: 14px;
   opacity: 0.85;
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
-  writing-mode: vertical-rl; /* ترتيب طولي يوحي بالطابع الأثري الكنسي */
+  writing-mode: vertical-rl;
 }
 
-/* مقابض الباب الواقعية */
+/* المقابض */
 .door-left::after, .door-right::after {
   content: '';
   position: absolute;
@@ -259,19 +256,14 @@ body.dark-mode textarea {
 .door-left::after { right: 18px; }
 .door-right::after { left: 18px; }
 
-/* فتح الباب بطريقة واقعية جداً (ينزلقوا للخارج أو يفتحوا بزاوية بسيطة وناعمة كالباب الحقيقي) */
-/* فتح الباب إلى الداخل (Inward Opening) كالأبواب الكنسية الحقيقية */
-.church-door-overlay.open .door-left {
-  transform: rotateY(105deg); /* الدوران للداخل */
-  transform-origin: left;    /* محور الدوران من الحافة اليسار */
+/* حركة فتح الباب: لما يزقوه لجوة (يكبر في الوش ويدخل في العمق مع تلاشي) */
+.church-door-overlay.open .cinematic-door-container {
+  transform: scale(2.8) translateZ(500px);
+  opacity: 0;
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.9s ease;
 }
 
-.church-door-overlay.open .door-right {
-  transform: rotateY(-105deg); /* الدوران للداخل باتجاه عكسي */
-  transform-origin: right;     /* محور الدوران من الحافة اليمين */
-}
-
-/* التلاشي السلس */
+/* التلاشي النهائي */
 .church-door-overlay.fade-out {
   opacity: 0;
   pointer-events: none;

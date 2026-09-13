@@ -42,18 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(doorOverlay);
 
-  // بعد ما الاقتراب البطيء الهادئ يخلص (حوالي 5.2 ثانية)، الباب يفتح بطريقة طبيعية
+  // بعد 5.3 ثانية (لما الاقتراب الهادئ يخلص)، الباب هيتزق لجوة
   setTimeout(() => {
     doorOverlay.classList.add("open");
   }, 5300);
 
-  // التلاشي بعد فتح الباب
+  // التلاشي
   setTimeout(() => {
     doorOverlay.classList.add("fade-out");
-  }, 6500);
+  }, 6200);
 
-  // مسح العنصر تماماً من DOM
+  // حذف العنصر تماماً عشان زرار الثيم يشتغل بحرية
   setTimeout(() => {
     doorOverlay.remove();
-  }, 7300);
+  }, 7000);
 });
