@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .handle-left-side {
       position: absolute;
       top: 55%;
-      right: 100px; 
+      right: 120px; 
       width: 10px;
       height: 90px;
       background: #ffffff;
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
     .handle-right-side {
       position: absolute;
       top: 55%;
-      left: 100px; 
+      left: 120px; 
       width: 10px;
       height: 90px;
       background: #ffffff;
@@ -116,11 +116,11 @@ document.addEventListener("DOMContentLoaded", () => {
     /* حركة صحيحة 100%: البابين بينفتحوا للداخل (كل دِرفة تلف على مفصلاتها الحقيقية في الأطراف لجوة العمق) */
     .church-door-overlay-v3.open .door-left-panel {
       transform: rotateY(110deg);
-      transform-origin: left;
+      transform-origin: right;
     }
     .church-door-overlay-v3.open .door-right-panel {
       transform: rotateY(-110deg);
-      transform-origin: right;
+      transform-origin: left;
     }
     
     .church-door-overlay-v3.fade-out {
