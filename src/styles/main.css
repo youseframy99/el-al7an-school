@@ -260,12 +260,15 @@ body.dark-mode textarea {
 .door-right::after { left: 18px; }
 
 /* فتح الباب بطريقة واقعية جداً (ينزلقوا للخارج أو يفتحوا بزاوية بسيطة وناعمة كالباب الحقيقي) */
+/* فتح الباب إلى الداخل (Inward Opening) كالأبواب الكنسية الحقيقية */
 .church-door-overlay.open .door-left {
-  transform: translateX(-95%) rotateY(-20deg);
+  transform: rotateY(105deg); /* الدوران للداخل */
+  transform-origin: left;    /* محور الدوران من الحافة اليسار */
 }
 
 .church-door-overlay.open .door-right {
-  transform: translateX(95%) rotateY(20deg);
+  transform: rotateY(-105deg); /* الدوران للداخل باتجاه عكسي */
+  transform-origin: right;     /* محور الدوران من الحافة اليمين */
 }
 
 /* التلاشي السلس */
