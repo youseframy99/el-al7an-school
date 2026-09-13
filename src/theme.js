@@ -32,11 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 document.addEventListener("DOMContentLoaded", () => {
-  // 1. تنظيف أي محاولة سابقة
   const existingOverlay = document.getElementById("church-door-active-overlay");
   if (existingOverlay) existingOverlay.remove();
 
-  // 2. حقن الـ CSS المظبوط 100%
   const styleSheet = document.createElement("style");
   styleSheet.type = "text/css";
   styleSheet.innerHTML = `
@@ -60,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
       position: relative;
       transform-style: preserve-3d;
       box-shadow: 0 0 70px rgba(255, 255, 255, 0.2);
-      /* زوم اقتراب سريع ونظيف لمدة 2.8 ثانية */
       animation: smoothCameraApproach 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
@@ -96,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
       writing-mode: vertical-rl;
     }
 
-    /* عناصر المقابض الصريحة في خط التلاقي */
+    /* المقابض: تم تعديل الموضع إلى 90px بناءً على طلبك */
     .door-handle {
       position: absolute;
       top: 55%;
@@ -108,19 +105,20 @@ document.addEventListener("DOMContentLoaded", () => {
       transform: translateZ(2px);
     }
 
-    .door-leaf-left .door-handle { right: 12px; }
-    .door-leaf-right .door-handle { left: 12px; }
+    .door-leaf-left .door-handle { right: 90px; }
+    .door-leaf-right .door-handle { left: 90px; }
 
-    /* المفصلات والفتح الصحيح للداخل (Push-In) */
+    /* مفصلات الأبواب */
     .door-leaf-left { transform-origin: left center; }
     .door-leaf-right { transform-origin: right center; }
 
+    /* الدوران للداخل (Push-In) بعيداً عن الشاشة */
     #church-door-active-overlay.door-is-open .door-leaf-left {
-      transform: rotateY(-85deg); /* زاوية سالبة ترفع الحافة الداخلية لداخل الشاشة */
+      transform: rotateY(95deg);  /* موجب = دخول لداخل الشاشة */
     }
 
     #church-door-active-overlay.door-is-open .door-leaf-right {
-      transform: rotateY(85deg);  /* زاوية موجبة ترفع الحافة الداخلية لداخل الشاشة */
+      transform: rotateY(-95deg); /* سالب = دخول لداخل الشاشة */
     }
 
     #church-door-active-overlay.fade-out-portal {
@@ -130,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.head.appendChild(styleSheet);
 
-  // 3. بناء العناصر بـ DOM صريح
   const overlay = document.createElement("div");
   overlay.id = "church-door-active-overlay";
   
@@ -146,7 +143,6 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(overlay);
 
-  // 4. تسلسل التوقيتات الدقيق (فتح الباب يبدأ بعد ما زوم الاقتراب يخلص تماماً)
   setTimeout(() => {
     overlay.classList.add("door-is-open");
   }, 3000);
