@@ -32,13 +32,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 document.addEventListener("DOMContentLoaded", () => {
-  const oldOverlay = document.querySelector(".cinematic-church-overlay");
-  if (oldOverlay) oldOverlay.remove();
+  // 1. تنظيف أي محاولة سابقة
+  const existingOverlay = document.getElementById("church-door-active-overlay");
+  if (existingOverlay) existingOverlay.remove();
 
+  // 2. حقن الـ CSS المظبوط 100%
   const styleSheet = document.createElement("style");
   styleSheet.type = "text/css";
   styleSheet.innerHTML = `
-    .cinematic-church-overlay {
+    #church-door-active-overlay {
       position: fixed;
       inset: 0;
       background-color: #000000;
@@ -51,34 +53,36 @@ document.addEventListener("DOMContentLoaded", () => {
       transition: opacity 0.8s ease;
     }
 
-    .church-doors-wrapper {
+    .church-portal-frame {
       width: 380px;
       height: 580px;
       display: flex;
       position: relative;
       transform-style: preserve-3d;
-      box-shadow: 0 0 60px rgba(255, 255, 255, 0.15);
-      animation: cameraApproach 5s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+      box-shadow: 0 0 70px rgba(255, 255, 255, 0.2);
+      /* زوم اقتراب سريع ونظيف لمدة 2.8 ثانية */
+      animation: smoothCameraApproach 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    @keyframes cameraApproach {
-      0% { transform: scale(0.05) translateZ(-3000px); opacity: 0; }
-      20% { opacity: 1; }
+    @keyframes smoothCameraApproach {
+      0% { transform: scale(0.08) translateZ(-2500px); opacity: 0; }
       100% { transform: scale(1) translateZ(0); opacity: 1; }
     }
 
-    .door-panel-left, .door-panel-right {
+    .door-leaf {
       width: 50%;
       height: 100%;
-      background: linear-gradient(135deg, #0a0a0a, #020202);
+      background: linear-gradient(135deg, #0f0f0f, #020202);
       border: 3px solid #ffffff;
       position: relative;
       transform-style: preserve-3d;
-      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-      box-shadow: inset 0 0 40px rgba(255, 255, 255, 0.08);
+      backface-visibility: hidden;
+      transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+      box-shadow: inset 0 0 45px rgba(255, 255, 255, 0.08);
     }
 
-    .door-panel-left::before, .door-panel-right::before {
+    /* النقوش */
+    .door-leaf::before {
       content: '☩ ☩ ☩';
       position: absolute;
       top: 40%;
@@ -87,74 +91,71 @@ document.addEventListener("DOMContentLoaded", () => {
       color: #ffffff;
       font-size: 26px;
       letter-spacing: 14px;
-      opacity: 0.8;
-      text-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+      opacity: 0.85;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.7);
       writing-mode: vertical-rl;
     }
 
-    /* المقابض في النص بالمللي (يمين الدرفة الشمال، وشمال الدرفة اليمين) */
-    .door-panel-left::after {
-      content: '';
+    /* عناصر المقابض الصريحة في خط التلاقي */
+    .door-handle {
       position: absolute;
       top: 55%;
-      right: 12px;
       width: 10px;
       height: 85px;
       background: #ffffff;
       border-radius: 4px;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.9);
+      transform: translateZ(2px);
     }
 
-    .door-panel-right::after {
-      content: '';
-      position: absolute;
-      top: 55%;
-      left: 12px;
-      width: 10px;
-      height: 85px;
-      background: #ffffff;
-      border-radius: 4px;
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+    .door-leaf-left .door-handle { right: 12px; }
+    .door-leaf-right .door-handle { left: 12px; }
+
+    /* المفصلات والفتح الصحيح للداخل (Push-In) */
+    .door-leaf-left { transform-origin: left center; }
+    .door-leaf-right { transform-origin: right center; }
+
+    #church-door-active-overlay.door-is-open .door-leaf-left {
+      transform: rotateY(-85deg); /* زاوية سالبة ترفع الحافة الداخلية لداخل الشاشة */
     }
 
-    /* الصح هنا: المفصلات على الأطراف الخارجية، والدوران يدخل لجوة الشاشة (Push-in) من غير دوران عشوائي */
-    .cinematic-church-overlay.open-portal .door-panel-left {
-      transform-origin: left center;
-      transform: rotateY(-100deg);
+    #church-door-active-overlay.door-is-open .door-leaf-right {
+      transform: rotateY(85deg);  /* زاوية موجبة ترفع الحافة الداخلية لداخل الشاشة */
     }
 
-    .cinematic-church-overlay.open-portal .door-panel-right {
-      transform-origin: right center;
-      transform: rotateY(100deg);
-    }
-
-    .cinematic-church-overlay.fade-out-portal {
+    #church-door-active-overlay.fade-out-portal {
       opacity: 0;
       pointer-events: none;
     }
   `;
   document.head.appendChild(styleSheet);
 
+  // 3. بناء العناصر بـ DOM صريح
   const overlay = document.createElement("div");
-  overlay.className = "cinematic-church-overlay";
+  overlay.id = "church-door-active-overlay";
   
   overlay.innerHTML = `
-    <div class="church-doors-wrapper">
-      <div class="door-panel-left"></div>
-      <div class="door-panel-right"></div>
+    <div class="church-portal-frame">
+      <div class="door-leaf door-leaf-left">
+        <div class="door-handle"></div>
+      </div>
+      <div class="door-leaf door-leaf-right">
+        <div class="door-handle"></div>
+      </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
+  // 4. تسلسل التوقيتات الدقيق (فتح الباب يبدأ بعد ما زوم الاقتراب يخلص تماماً)
   setTimeout(() => {
-    overlay.classList.add("open-portal");
-  }, 4800);
+    overlay.classList.add("door-is-open");
+  }, 3000);
 
   setTimeout(() => {
     overlay.classList.add("fade-out-portal");
-  }, 5800);
+  }, 4300);
 
   setTimeout(() => {
     overlay.remove();
-  }, 6600);
+  }, 5200);
 });
