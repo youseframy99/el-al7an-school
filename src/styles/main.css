@@ -170,3 +170,34 @@ body.dark-mode textarea {
   color: #ffffff !important;
   border-color: #444444 !important;
 }
+/* حاوية الصفحة بالكامل عشان نعمل تأثير الـ 3D Perspective */
+body {
+  overflow-x: hidden;
+  perspective: 1000px;
+  background-color: #121212; /* لون خلفية داكن يعطي فخامة للباب */
+}
+
+/* العنصر أو الفورم اللي هيتفتح كأنه باب */
+.auth-page, .auth-form {
+  animation: doorOpenEffect 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  transform-origin: center center;
+}
+
+/* تفاصيل أنيميشن الباب: يبدأ مكبر وقريب (أو مغطي الشاشة) بعدين ينكمش ويفتح لمكانه الطبيعي */
+@keyframes doorOpenEffect {
+  0% {
+    opacity: 0;
+    transform: scale(2) translateZ(-500px);
+    filter: blur(10px);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2) translateZ(-100px);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+    filter: blur(0);
+  }
+}
