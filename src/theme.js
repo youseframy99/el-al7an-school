@@ -114,13 +114,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* حركة الفتح للداخل بدون رقاص */
+    // استبدل جزء الـ CSS الخاص بالـ open والـ door بالآتي:
     .church-door-overlay-v2.open .door-left-panel {
-      transform: rotateY(-110deg);
-      transform-origin: left;
+      transform: translate3d(-150px, 0, 400px) rotateY(-35deg);
+      opacity: 0;
     }
     .church-door-overlay-v2.open .door-right-panel {
-      transform: rotateY(110deg);
-      transform-origin: right;
+      transform: translate3d(150px, 0, 400px) rotateY(35deg);
+      opacity: 0;
     }
     .church-door-overlay-v2.fade-out {
       opacity: 0;
