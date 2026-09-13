@@ -187,12 +187,13 @@ body.dark-mode textarea {
   transition: opacity 0.8s ease;
 }
 
-/* حاوية الباب مع الاقتراب البطيء */
+/* حاوية الباب مع الاقتراب البطيء (الـ 5 ثواني بتوعك) */
 .cinematic-door-container {
   width: 380px;
   height: 580px;
   display: flex;
   position: relative;
+  transform-style: preserve-3d;
   box-shadow: 0 0 60px 20px rgba(255, 255, 255, 0.22), 
               inset 0 0 40px rgba(255, 255, 255, 0.1);
   border-radius: 4px;
@@ -225,10 +226,11 @@ body.dark-mode textarea {
   border: 4px solid #ffffff;
   position: relative;
   box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.1);
-  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 1s ease;
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
 }
 
-/* النقوش القبطية والتراثية */
+/* النقوش القبطية */
 .door-left::before, .door-right::before {
   content: '☩ ☩ ☩';
   position: absolute;
@@ -243,12 +245,12 @@ body.dark-mode textarea {
   writing-mode: vertical-rl;
 }
 
-/* تعديل أماكن المقابض لتكون في منتصف الباب تماماً (مكان التقاء الدرفتين) */
+/* المقابض مظبوطة في النص بالظبط (الشمال على اليمين - اليمين على الشمال) */
 .door-left::after {
   content: '';
   position: absolute;
   top: 55%;
-  right: 12px; /* مقبض الدرفة اليسار على حافة اليمين (الوسط) */
+  right: 12px;
   width: 10px;
   height: 90px;
   background: #ffffff;
@@ -260,7 +262,7 @@ body.dark-mode textarea {
   content: '';
   position: absolute;
   top: 55%;
-  left: 12px; /* مقبض الدرفة اليمين على حافة اليسار (الوسط) */
+  left: 12px;
   width: 10px;
   height: 90px;
   background: #ffffff;
@@ -268,13 +270,18 @@ body.dark-mode textarea {
   box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
 }
 
-/* حركة فتح الباب: زقه لجوة (تكبير الحاوية مع تلاشي لضمان ظهور الحركة) */
-.church-door-overlay.open .cinematic-door-container {
-  transform: scale(3.5) translateZ(800px);
-  opacity: 0;
+/* حركة الباب للداخل (Inward Opening حقيقي: الشمال يلف لجوة ناحية الشمال، اليمين يلف لجوة ناحية اليمين من الأطراف) */
+.church-door-overlay.open .door-left {
+  transform: rotateY(-95deg);
+  transform-origin: left;
 }
 
-/* التلاشي النهائي للطبقة */
+.church-door-overlay.open .door-right {
+  transform: rotateY(95deg);
+  transform-origin: right;
+}
+
+/* التلاشي النهائي */
 .church-door-overlay.fade-out {
   opacity: 0;
   pointer-events: none;
