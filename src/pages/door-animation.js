@@ -8,13 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.body.appendChild(doorOverlay);
 
-  // تشغيل حركة الفتح بعد جزء من الثانية من تحميل الصفحة
+  // تشغيل حركة الفتح بعد جزء من الثانية
   setTimeout(() => {
     doorOverlay.classList.add("open");
-  }, 300);
+  }, 200);
 
-  // إزالة العنصر من DOM تماماً بعد انتهاء الحركة لضمان عدم تعطيل أي تفاعل
+  // إزالة العنصر تماماً بعد انتهاء الحركة عشان ما يلمسش أي زرار أو يأثر على الثيم
   setTimeout(() => {
-    doorOverlay.classList.add("hidden-door");
-  }, 1800);
+    doorOverlay.remove();
+  }, 1700);
 });
