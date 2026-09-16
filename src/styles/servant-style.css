@@ -283,3 +283,14 @@ body.dark-mode .section-title i {
   background: var(--color-primary, #0B2545);
   color: #fff;
 }
+/* تعديل الهيدر ليطابق الوضع المظلم بشكل أنيق */
+body.dark-mode .site-header {
+  background-color: #1e1e1e !important; /* لون خلفية داكن يتماشى مع الكروت */
+  border-color: #333 !important;
+}
+
+body.dark-mode .site-header h1,
+body.dark-mode .site-header span,
+body.dark-mode .site-header div {
+  color: #ffffff !important; /* ضمان ظهور النص باللون الأبيض الواضح */
+}
