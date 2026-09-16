@@ -1,6 +1,6 @@
 import { db, auth } from '../config/firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { doc, getDoc, collection, query, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const themeToggleBtn = document.getElementById("theme-toggle");
@@ -50,6 +50,15 @@ onAuthStateChanged(auth, async (user) => {
         const servantName = userData.fullName || userData.name || user.displayName || "خادم الكنيسة";
         if (nameElem) nameElem.innerText = servantName;
 
+        // إظهار لوحة إشراف الطلبات المعلقة إذا كان خادم مشرف
+        if (userData.isSupervisor === true) {
+          const supervisorSection = document.getElementById("supervisor-approval-section");
+          if (supervisorSection) {
+            supervisorSection.style.display = "block";
+            await loadPendingStudents();
+          }
+        }
+
         const classIds = userData.grades || (userData.classId ? [userData.classId] : []);
         
         if (classIds.length > 0) {
@@ -76,6 +85,128 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = '/login';
   }
 });
+
+// دالة تحميل الطلاب المعلقين للمشرف
+async function loadPendingStudents() {
+  const container = document.getElementById("pending-students-list");
+  if (!container) return;
+
+  try {
+    const q = query(
+      collection(db, "users"),
+      where("accountType", "==", "student"),
+      where("status", "==", "pending")
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
+      return;
+    }
+
+    let html = `
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: right;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted);">
+              <th style="padding: 10px;">اسم الطالب</th>
+              <th style="padding: 10px;">رقم الواتساب</th>
+              <th style="padding: 10px;">المرحلة</th>
+              <th style="padding: 10px;">البريد الإلكتروني</th>
+              <th style="padding: 10px; text-align: center;">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    querySnapshot.forEach((docSnap) => {
+      const student = docSnap.data();
+      const studentId = docSnap.id;
+      const name = student.fullName || student.name || "طالب بدون اسم";
+      const phone = student.whatsapp || student.phone || "غير مسجل";
+      const grade = student.grade || student.classId || "غير محدد";
+      const email = student.email || "غير مسجل";
+
+      html += `
+        <tr id="pending-row-${studentId}" style="border-bottom: 1px solid var(--border-color); background: #fff;">
+          <td style="padding: 10px; font-weight: 600; color: #333;">${name}</td>
+          <td style="padding: 10px; direction: ltr; text-align: right; color: #333;">${phone}</td>
+          <td style="padding: 10px; color: #2980b9;">${grade}</td>
+          <td style="padding: 10px; color: #555;">${email}</td>
+          <td style="padding: 10px; text-align: center;">
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button class="btn-approve" data-id="${studentId}" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-check"></i> قبول
+              </button>
+              <button class="btn-reject" data-id="${studentId}" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-xmark"></i> رفض
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+
+    container.querySelectorAll('.btn-approve').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        await approveStudent(id);
+      });
+    });
+
+    container.querySelectorAll('.btn-reject').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        await rejectStudent(id);
+      });
+    });
+
+  } catch (err) {
+    console.error("خطأ في جلب طلبات المعلقين:", err);
+    container.innerHTML = `<p style="text-align: center; color: #e74c3c; padding: 15px;">حدث خطأ أثناء تحميل الطلبات المعلقة.</p>`;
+  }
+}
+
+async function approveStudent(studentId) {
+  if (!confirm("هل أنت متأكد من قبول هذا الطالب وتفعيل حسابه؟")) return;
+  try {
+    await updateDoc(doc(db, "users", studentId), {
+      status: "approved"
+    });
+    const row = document.getElementById(`pending-row-${studentId}`);
+    if (row) row.remove();
+    alert("تم قبول الطالب بنجاح ورُفع عنه حظر الدخول! ✅");
+    
+    const container = document.getElementById("pending-students-list");
+    if (container && container.querySelectorAll('tbody tr').length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
+    }
+  } catch (err) {
+    console.error("خطأ أثناء قبول الطالب:", err);
+    alert("حدث خطأ أثناء قبول الطالب!");
+  }
+}
+
+async function rejectStudent(studentId) {
+  if (!confirm("هل أنت متأكد من رفض هذا الطلب وحذف حسابه المعلق؟")) return;
+  try {
+    await deleteDoc(doc(db, "users", studentId));
+    const row = document.getElementById(`pending-row-${studentId}`);
+    if (row) row.remove();
+    alert("تم رفض الطلب وحذف الحساب بنجاح! ❌");
+    
+    const container = document.getElementById("pending-students-list");
+    if (container && container.querySelectorAll('tbody tr').length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
+    }
+  } catch (err) {
+    console.error("خطأ أثناء رفض الطالب:", err);
+    alert("حدث خطأ أثناء رفض الطلب!");
+  }
+}
 
 // عرض الطلاب لكل مرحلة بدون أزرار حضور
 async function loadMultipleClassStudents(classIds) {
@@ -237,14 +368,13 @@ async function loadAttendanceHistory(classIds) {
     container.innerHTML = `<p style="text-align: center; color: #e74c3c;">تعذر تحميل السجلات.</p>`;
   }
 }
-// عرض درجات الامتحانات للطلاب في جدول منفصل تماماً
-// عرض درجات الامتحانات وتنظيف كافة أخطاء الكلمات
+
+// عرض درجات الامتحانات للطلاب
 async function loadStudentExamGrades(classIds) {
   const container = document.getElementById("grades-table-wrapper");
   if (!container) return;
 
   try {
-    // 1. جلب الامتحانات من كولكشن quizzes
     const quizzesSnapshot = await getDocs(collection(db, "quizzes"));
     let quizzesMap = {};
     quizzesSnapshot.forEach(docSnap => {
@@ -252,7 +382,6 @@ async function loadStudentExamGrades(classIds) {
       quizzesMap[docSnap.id] = qData.title || qData.examName || qData.name || "";
     });
 
-    // 2. جلب الطلاب
     const userSnapshot = await getDocs(collection(db, "users"));
     let studentsMap = {};
     const normalizedClassIds = classIds.map(c => c.toString().trim().toLowerCase());
@@ -275,20 +404,14 @@ async function loadStudentExamGrades(classIds) {
       return;
     }
 
-    // 3. جلب نتائج الامتحانات
     const resultsSnapshot = await getDocs(collection(db, "examResults"));
     let studentGrades = {};
 
     resultsSnapshot.forEach(docSnap => {
       const res = docSnap.data();
-      
-      // فحص محتوى المستند في الـ Console للتأكد من حقل الربط
-      console.log("Exam Result Data:", res);
-
       const studentId = res.studentId || res.userId;
       
       if (studentId && studentsMap[studentId]) {
-        // تم تصحيح اسم المتغير تماماً لعدم إعطاء أي خطأ
         if (!studentGrades[studentId]) {
           studentGrades[studentId] = [];
         }

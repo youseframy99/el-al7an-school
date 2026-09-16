@@ -4,7 +4,8 @@ import {
   updateProfile,
   GoogleAuthProvider,
   FacebookAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   doc, setDoc, getDoc
@@ -15,12 +16,20 @@ const accountType = document.getElementById("accountType");
 const studentFields = document.getElementById("student-fields");
 const servantFields = document.getElementById("servant-fields");
 const errorMsg = document.getElementById("error-msg");
+const isSupervisorCheck = document.getElementById("isSupervisorCheck");
+const supervisorCodeGroup = document.getElementById("supervisor-code-group");
 
 accountType.addEventListener("change", () => {
   const isStudent = accountType.value === "student";
   studentFields.classList.toggle("hidden", !isStudent);
   servantFields.classList.toggle("hidden", isStudent);
 });
+
+if (isSupervisorCheck) {
+  isSupervisorCheck.addEventListener("change", () => {
+    supervisorCodeGroup.classList.toggle("hidden", !isSupervisorCheck.checked);
+  });
+}
 
 // --- تسجيل بالإيميل ---
 form.addEventListener("submit", async (e) => {
@@ -31,13 +40,21 @@ form.addEventListener("submit", async (e) => {
   const whatsapp = document.getElementById("whatsapp").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword")?.value;
   const type = accountType.value;
+
+  if (confirmPassword && password !== confirmPassword) {
+    return showError("كلمتا المرور غير متطابقتين!");
+  }
 
   let profileData = {
     fullName, whatsapp, email,
     accountType: type,
+    profileComplete: true,
     createdAt: new Date().toISOString()
   };
+
+  let isSupervisor = false;
 
   if (type === "student") {
     const grade = document.getElementById("studentGrade").value;
@@ -47,6 +64,8 @@ form.addEventListener("submit", async (e) => {
     profileData.points = 0;
     profileData.level = 1;
     profileData.attendanceRate = 0;
+    profileData.status = "pending";
+    profileData.isSupervisor = false;
   }
 
   if (type === "servant") {
@@ -55,13 +74,13 @@ form.addEventListener("submit", async (e) => {
     ).map(cb => cb.value);
     const subject = document.getElementById("servantSubject").value;
     const servantCodeInput = document.getElementById("servantCode").value.trim();
+    const isSupervisorChoice = isSupervisorCheck ? isSupervisorCheck.checked : false;
 
     if (grades.length === 0) return showError("اختر مرحلة واحدة على الأقل");
     if (!subject) return showError("اختر المادة");
     if (!servantCodeInput) return showError("من فضلك أدخل كود التحقق الخاص بالخدام");
 
     try {
-      // جلب الكود الصحيح من قاعدة البيانات من جدول الإعدادات
       const configRef = doc(db, "settings", "config");
       const configSnap = await getDoc(configRef);
 
@@ -69,35 +88,54 @@ form.addEventListener("submit", async (e) => {
         return showError("خطأ في إعدادات النظام، تواصل مع المسؤول");
       }
 
-      const correctCode = configSnap.data().servantSecretCode;
+      const configData = configSnap.data();
+      const correctServantCode = configData.servantSecretCode || configData.servantCode;
 
-      if (servantCodeInput !== correctCode) {
+      if (servantCodeInput !== correctServantCode) {
         return showError("كود التحقق الخاص بالخدام غير صحيح!");
       }
+
+      if (isSupervisorChoice) {
+        const supervisorCodeInput = document.getElementById("supervisorCode").value.trim();
+        if (!supervisorCodeInput) {
+          return showError("من فضلك أدخل كود التحقق الخاص بالخادم المشرف");
+        }
+        const correctSupervisorCode = configData.supervisorSecretCode || configData.supervisorCode;
+        if (supervisorCodeInput !== correctSupervisorCode) {
+          return showError("كود التحقق الخاص بالخادم المشرف غير صحيح!");
+        }
+        isSupervisor = true;
+      }
     } catch (err) {
+      console.error(err);
       return showError("حدث خطأ أثناء التحقق من الكود");
     }
 
     profileData.grades = grades;
     profileData.subject = subject;
+    profileData.status = "approved";
+    profileData.isSupervisor = isSupervisor;
   }
 
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
     
-    // تحديث الاسم في حساب الـ Auth لتسريع التنسيق
     await updateProfile(cred.user, { displayName: fullName });
 
-    // حفظ البيانات في Firestore
     await setDoc(doc(db, "users", cred.user.uid), profileData);
     
-    redirectAfterLogin(type);
+    if (type === "student") {
+      alert("تم إنشاء حسابك بنجاح! حسابك الآن قيد المراجعة بواسطة الخدام المشرفين ولن تتمكن من الدخول حتى تتم الموافقة عليه.");
+      await signOut(auth);
+      window.location.href = "/login";
+    } else {
+      window.location.href = "/servant-dashboard";
+    }
   } catch (err) {
     showError(mapFirebaseError(err.code));
   }
 });
 
-// --- تسجيل بجوجل / فيسبوك ---
 // --- تسجيل بجوجل / فيسبوك ---
 document.getElementById("google-btn").addEventListener("click", () => {
   handleSocialLogin(new GoogleAuthProvider());
@@ -105,8 +143,7 @@ document.getElementById("google-btn").addEventListener("click", () => {
 
 document.getElementById("facebook-btn").addEventListener("click", () => {
   const facebookProvider = new FacebookAuthProvider();
-  facebookProvider.addScope('email'); // طلب الإيميل من فيسبوك صراحة
-  
+  facebookProvider.addScope('email');
   handleSocialLogin(facebookProvider);
 });
 
@@ -128,7 +165,14 @@ async function handleSocialLogin(provider) {
     } else if (existing.data().profileComplete === false) {
       window.location.href = "/complete-profile";
     } else {
-      redirectAfterLogin(existing.data().accountType);
+      const userData = existing.data();
+      if (userData.accountType === "student" && userData.status === "pending") {
+        alert("حسابك قيد المراجعة بواسطة الخدام المشرفين ولم يتم تفعيله بعد.");
+        await signOut(auth);
+        window.location.href = "/login";
+      } else {
+        redirectAfterLogin(userData.accountType);
+      }
     }
   } catch (err) {
     showError(mapFirebaseError(err.code));

@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة عرض الخادم - مدرسة الألحان</title>
   <link rel="icon" href="/assets/images/cross (2).png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="/src/styles/servant-style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/src/styles/servant-style.css">
 </head>
 <body class="servant-page">
 
@@ -35,6 +35,16 @@
       </a>
     </section>
 
+    <!-- قسم لوحة إشراف الطلبات المعلقة (مخفي افتراضياً ويظهر للمشرفين فقط) -->
+    <section class="card-box" id="supervisor-approval-section" style="margin-bottom: 30px; display: none; border: 2px solid #e74c3c;">
+      <h3 class="section-title" style="color: #c0392b;">
+        <i class="fa-solid fa-user-clock"></i> لوحة إشراف الطلبات (طلبات الطلاب المعلقة)
+      </h3>
+      <div id="pending-students-list">
+        <p style="text-align: center; color: var(--text-muted); padding: 15px;">جاري تحميل طلبات الانضمام المعلقة...</p>
+      </div>
+    </section>
+
     <!-- قائمة أوائل المخدومين (Leaderboard) للمراحل -->
     <section class="card-box" style="margin-bottom: 30px;">
       <h3 class="section-title"><i class="fa-solid fa-trophy" style="color: #f1c40f;"></i> لوحة الشرف (Leaderboard) للمراحل</h3>
@@ -43,18 +53,20 @@
       </div>
     </section>
 
-    <!-- قائمة طلاب المراحل (عرض بياناتهم ونقاطهم بدون أزرار تسجيل) -->
+    <!-- قائمة طلاب المراحل -->
     <section class="card-box" id="students-container" style="margin-bottom: 30px;">
       <h3 class="section-title"><i class="fa-solid fa-users-rectangle"></i> قائمة مخدومي المراحل والفصول</h3>
       <p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري جلب بيانات الطلاب...</p>
     </section>
-<!-- قسم جدول درجات الامتحانات المنفصل -->
+
+    <!-- قسم جدول درجات الامتحانات المنفصل -->
     <section class="card-box" id="exams-grades-container" style="margin-bottom: 30px;">
       <h3 class="section-title"><i class="fa-solid fa-file-lines"></i> درجات امتحانات المخدومين</h3>
       <div id="grades-table-wrapper">
         <p style="text-align: center; color: var(--text-muted); padding: 20px;">جاري تحميل درجات الامتحانات...</p>
       </div>
     </section>
+
     <!-- قسم عرض سجلات الحضور السابق -->
     <section class="card-box" id="attendance-history-container">
       <h3 class="section-title"><i class="fa-solid fa-clipboard-user"></i> سجل الحضور السابق للمخدومين</h3>

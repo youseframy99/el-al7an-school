@@ -67,9 +67,21 @@
           <option value="hymns">ألحان</option>
         </select>
 
-        <!-- حقل كود التحقق السري للخدام -->
-        <label for="servantCode" style="margin-top: 15px;">ادخل كود الخادم</label>
+        <!-- كود التحقق للخدام -->
+        <label for="servantCode" style="margin-top: 15px;">ادخل كود الخادم العادي</label>
         <input type="password" id="servantCode" placeholder="الكود السري">
+
+        <!-- اختيار خادم مشرف -->
+        <div style="margin-top: 15px; margin-bottom: 10px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+            <input type="checkbox" id="isSupervisorCheck"> هل تريد أن تكون خادم مشرف؟
+          </label>
+        </div>
+
+        <div id="supervisor-code-group" class="hidden" style="margin-top: 10px;">
+          <label for="supervisorCode">ادخل كود الخادم المشرف</label>
+          <input type="password" id="supervisorCode" placeholder="الكود السري للمشرفين">
+        </div>
       </div>
 
       <p id="error-msg" class="error hidden"></p>
@@ -78,7 +90,6 @@
     </form>
   </main>
 
-  <!-- إصلاح مسار theme.js -->
   <script src="/src/theme.js"></script>
 
   <!-- 1. سكريبت واجهة المستخدم -->
@@ -88,6 +99,8 @@
       const studentFields = document.getElementById("student-fields");
       const servantFields = document.getElementById("servant-fields");
       const whatsappInput = document.getElementById("whatsapp");
+      const isSupervisorCheck = document.getElementById("isSupervisorCheck");
+      const supervisorCodeGroup = document.getElementById("supervisor-code-group");
 
       function updateUI() {
         const val = accountType.value;
@@ -106,6 +119,12 @@
       accountType.addEventListener("change", updateUI);
       updateUI();
 
+      if (isSupervisorCheck && supervisorCodeGroup) {
+        isSupervisorCheck.addEventListener("change", () => {
+          supervisorCodeGroup.classList.toggle("hidden", !isSupervisorCheck.checked);
+        });
+      }
+
       if (whatsappInput) {
         whatsappInput.addEventListener("input", (e) => {
           let val = e.target.value.replace(/\D/g, "");
@@ -118,9 +137,8 @@
 
   <!-- 2. سكريبت الفايربيز -->
   <script type="module">
-    // إصلاح مسار firebase-config.js
     import { auth, db } from "/src/config/firebase-config.js";
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const form = document.getElementById("complete-profile-form");
@@ -184,6 +202,8 @@
         profileData.points = 0;
         profileData.level = 1;
         profileData.attendanceRate = 0;
+        profileData.status = "pending";
+        profileData.isSupervisor = false;
       }
 
       if (type === "servant") {
@@ -192,10 +212,14 @@
         ).map(cb => cb.value);
         const subject = document.getElementById("servantSubject").value;
         const servantCodeInput = document.getElementById("servantCode").value.trim();
+        const isSupervisorCheck = document.getElementById("isSupervisorCheck");
+        const isSupervisorChoice = isSupervisorCheck ? isSupervisorCheck.checked : false;
 
         if (grades.length === 0) return showError("اختر مرحلة واحدة على الأقل");
         if (!subject) return showError("اختر المادة");
         if (!servantCodeInput) return showError("من فضلك أدخل كود التحقق الخاص بالخدام");
+
+        let isSupervisor = false;
 
         try {
           const configRef = doc(db, "settings", "config");
@@ -205,10 +229,23 @@
             return showError("خطأ في إعدادات النظام، تواصل مع المسؤول");
           }
 
-          const correctCode = configSnap.data().servantSecretCode;
+          const configData = configSnap.data();
+          const correctServantCode = configData.servantSecretCode || configData.servantCode;
 
-          if (servantCodeInput !== correctCode) {
+          if (servantCodeInput !== correctServantCode) {
             return showError("كود التحقق الخاص بالخدام غير صحيح!");
+          }
+
+          if (isSupervisorChoice) {
+            const supervisorCodeInput = document.getElementById("supervisorCode").value.trim();
+            if (!supervisorCodeInput) {
+              return showError("من فضلك أدخل كود التحقق الخاص بالخادم المشرف");
+            }
+            const correctSupervisorCode = configData.supervisorSecretCode || configData.supervisorCode;
+            if (supervisorCodeInput !== correctSupervisorCode) {
+              return showError("كود التحقق الخاص بالخادم المشرف غير صحيح!");
+            }
+            isSupervisor = true;
           }
         } catch (err) {
           console.error("Fetch Config Error:", err);
@@ -217,11 +254,20 @@
 
         profileData.grades = grades;
         profileData.subject = subject;
+        profileData.status = "approved";
+        profileData.isSupervisor = isSupervisor;
       }
 
       try {
         await setDoc(doc(db, "users", currentUser.uid), profileData, { merge: true });
-        redirectAfterLogin(type);
+        
+        if (type === "student") {
+          alert("تم حفظ بياناتك بنجاح! حسابك الآن قيد المراجعة بواسطة الخدام المشرفين ولن تتمكن من الدخول حتى يتم الموافقة عليه.");
+          await signOut(auth);
+          window.location.href = "/login";
+        } else {
+          window.location.href = "/servant-dashboard";
+        }
       } catch (err) {
         console.error("Save User Error:", err);
         showError("حدث خطأ أثناء حفظ البيانات، حاول مرة أخرى.");

@@ -23,7 +23,7 @@
     <div class="social-buttons">
       <button type="button" id="google-btn" class="social-btn google">
   <svg width="18" height="18" viewBox="0 0 48 48">
-    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.5 29.6 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5 44.5 35.3 44.5 24c0-1.2-.1-2.4-.9-3.5z"/>
+    <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.5 29.6 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5 35.3 44.5 44.5 24c0-1.2-.1-2.4-.9-3.5z"/>
     <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 5.5 29.6 3.5 24 3.5 16 3.5 9 8 6.3 14.7z"/>
     <path fill="#4CAF50" d="M24 44.5c5.5 0 10.4-1.9 14.2-5.1l-6.6-5.4C29.5 35.6 26.9 36.5 24 36.5c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9 40.5 16 44.5 24 44.5z"/>
     <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.7l6.6 5.4C41.4 36.4 44.5 30.8 44.5 24c0-1.2-.1-2.4-.9-3.5z"/>
@@ -54,10 +54,11 @@
       <input type="email" id="email" required>
 
       <label for="password">كلمة المرور</label>
-<input type="password" id="password" required minlength="6">
+      <input type="password" id="password" required minlength="6">
 
-<label for="confirmPassword">تأكيد كلمة المرور</label>
-<input type="password" id="confirmPassword" required minlength="6">
+      <label for="confirmPassword">تأكيد كلمة المرور</label>
+      <input type="password" id="confirmPassword" required minlength="6">
+
       <label for="accountType">نوع الحساب</label>
       <select id="accountType" required>
         <option value="" disabled selected>اختر النوع</option>
@@ -94,9 +95,22 @@
           <option value="hymns">ألحان</option>
         </select>
 
-        <!-- حقل كود التحقق السري للخدام -->
-        <label for="servantCode"> ادخل كود الخادم </label>
-        <input type="password" id="servantCode">
+        <!-- كود التحقق للخدام العاديين -->
+        <label for="servantCode">ادخل كود الخادم العادي</label>
+        <input type="password" id="servantCode" placeholder="الكود السري للخدام">
+
+        <!-- اختيار خادم مشرف -->
+        <div style="margin-top: 15px; margin-bottom: 15px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+            <input type="checkbox" id="isSupervisorCheck"> هل تريد أن تكون خادم مشرف؟
+          </label>
+        </div>
+
+        <!-- كود التحقق للمشرفين (يظهر عند التحديد فقط) -->
+        <div id="supervisor-code-group" class="hidden" style="margin-top: 10px;">
+          <label for="supervisorCode">ادخل كود الخادم المشرف</label>
+          <input type="password" id="supervisorCode" placeholder="الكود السري للمشرفين">
+        </div>
       </div>
 
       <p id="error-msg" class="error hidden"></p>
