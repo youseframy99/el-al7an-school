@@ -4,7 +4,8 @@ import {
   GoogleAuthProvider,
   FacebookAuthProvider,
   signInWithPopup,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   doc, getDoc, setDoc
@@ -78,12 +79,21 @@ async function handleSocialLogin(provider) {
       return;
     }
 
-    if (existing.data().profileComplete === false) {
+    const userData = existing.data();
+
+    if (userData.profileComplete === false) {
       window.location.href = "/complete-profile";
       return;
     }
 
-    redirectAfterLogin(existing.data().accountType);
+    // التحقق من حالة الطالب المعلق
+    if (userData.accountType === "student" && userData.status === "pending") {
+      showError("حسابك قيد المراجعة بواسطة الخدام المشرفين ولم يتم تفعيله بعد.");
+      await signOut(auth);
+      return;
+    }
+
+    redirectAfterLogin(userData.accountType);
   } catch (err) {
     console.error("❌ خطأ الدخول الاجتماعي:", err);
     showError(mapFirebaseError(err.code));
@@ -122,8 +132,17 @@ async function routeAfterLogin(uid) {
     return;
   }
 
-  console.log("5. بيانات المستخدم:", snap.data());
-  redirectAfterLogin(snap.data().accountType);
+  const userData = snap.data();
+  console.log("5. بيانات المستخدم:", userData);
+
+  // التحقق من حالة الطالب المعلق
+  if (userData.accountType === "student" && userData.status === "pending") {
+    showError("حسابك قيد المراجعة بواسطة الخدام المشرفين ولم يتم تفعيله بعد.");
+    await signOut(auth);
+    return;
+  }
+
+  redirectAfterLogin(userData.accountType);
 }
 
 function redirectAfterLogin(type) {
