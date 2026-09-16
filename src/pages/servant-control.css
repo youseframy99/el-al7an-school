@@ -402,23 +402,22 @@ th, td {
   font-size: 0.95rem;
 }
 ```[cite: 8]
-/* حل مشكلة خروج جميع حقول الإدخال والقوائم والملفات عن حدود الكروت */
-.card-box input,
-.card-box select,
-.card-box textarea,
-.card-box .form-group input,
-.card-box .form-group select,
-.card-box .form-group textarea {
-  width: 100% !important;
+/* --- الحل الجذري والنهائي لتجاوز حقول الإدخال لحدود الكروت --- */
+*, *::before, *::after {
   box-sizing: border-box !important;
-  max-width: 100% !important;
 }
 
-/* ضبط مظهر زرار اختيار الملفات (Choose File) عشان ميعملش إزاحة */
-.card-box input[type="file"] {
+.card-box input[type="text"],
+.card-box input[type="file"],
+.card-box select,
+.card-box textarea,
+.form-group input,
+.form-group select,
+.form-group textarea {
   box-sizing: border-box !important;
-  padding: 8px;
-  background: var(--input-bg, #fdfdfd);
-  border: 1px solid var(--border-color, #dcdde1);
-  border-radius: 8px;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
 }
