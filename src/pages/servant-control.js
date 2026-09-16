@@ -1,7 +1,6 @@
 // ==========================================
 // لوحة كنترول الخادم - servant-control.js
 // ==========================================
-import '../theme.js';
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getFirestore, doc, getDoc, collection, getDocs, setDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -55,6 +54,29 @@ let temporaryQuestionsList = JSON.parse(localStorage.getItem("draft_questions"))
 
 // أول ما الصفحة تفتح
 document.addEventListener("DOMContentLoaded", () => {
+  // تفعيل الثيم (الوضع المظلم/الفاتح)
+  const themeToggleBtn = document.getElementById("theme-toggle");
+  const currentTheme = localStorage.getItem("theme");
+
+  if (currentTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      let theme = "light";
+      if (document.body.classList.contains("dark-mode")) {
+        theme = "dark";
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+      } else {
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      }
+      localStorage.setItem("theme", theme);
+    });
+  }
+
   updateQuestionsPreview();
   loadAdminQuizzes();
   loadEssaysForGrading();
@@ -103,10 +125,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// 1. الحضور والغياب (متوافق مع الكود الأصلي الخاص بك)
-// ==========================================
-// دالة تسجيل وحفظ الحضور (محدثة لمنع التكرار وزيادة 5 نقاط)
-// ==========================================
+// 1. الحضور والغياب
 async function loadStudentsForAttendance() {
   if (!attendanceTableBody) return;
   try {
@@ -128,15 +147,12 @@ async function loadStudentsForAttendance() {
       const userId = userDoc.id;
       const studentName = (userData.name || userData.fullName || "طالب").trim();
 
-      // فحص كل احتمالات الحقل اللي بيحدد نوع الحساب (accountType أو role أو type)
       const userType = (userData.accountType || userData.role || userData.type || "").toLowerCase();
       
-      // لو الحساب خادم بأي شكل، اهمله فوراً
       if (userType === "servant") {
         return;
       }
 
-      // منع تكرار الأسماء
       if (seenNames.has(studentName)) {
         return;
       }
@@ -163,7 +179,6 @@ async function loadStudentsForAttendance() {
   }
 }
 
-// زر حفظ الحضور وتحديث النقاط (تأكد إنه موجود عندك أو استبدله بهذا)
 if (saveAttendanceBtn) {
   saveAttendanceBtn.addEventListener("click", async () => {
     try {
