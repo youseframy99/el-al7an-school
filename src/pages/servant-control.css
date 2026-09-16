@@ -374,3 +374,31 @@ th, td {
   background-color: #dc3545;
   color: #fff;
 }
+/* تعديل صندوق منشئ الأسئلة لضبط محاذاة وعرض الحقول بداخله */
+.question-builder-box {
+  border: 2px dashed var(--border-color, #dcdde1);
+  padding: 20px;
+  border-radius: 10px;
+  background: var(--input-bg, #fafafa);
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  box-sizing: border-box; /* ضمان حساب الحواف بشكل صحيح */
+}
+
+/* جعل جميع حقول الإدخال والـ Textarea والـ Select داخل صندوق الأسئلة متسقة وداخل الحدود تماماً */
+.question-builder-box input,
+.question-builder-box select,
+.question-builder-box textarea {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color, #dcdde1);
+  background: var(--input-bg, #fdfdfd);
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.95rem;
+}
+```[cite: 8]
