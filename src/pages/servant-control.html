@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>لوحة الكنترول - مدرسة الألحان</title>
   <link rel="icon" href="/assets/images/cross (2).png">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link rel="stylesheet" href="/src/styles/servant-style.css">
-<link rel="stylesheet" href="/src/pages/servant-control.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/src/styles/servant-style.css">
+  <link rel="stylesheet" href="/src/pages/servant-control.css">
 </head>
 <body class="servant-page">
 
@@ -42,6 +42,16 @@
     <div id="error-msg" class="error hidden"></div>
     <div id="success-msg" class="success hidden"></div>
 
+    <!-- قسم لوحة إشراف الطلبات المعلقة (مخفي افتراضياً ويظهر للمشرفين فقط) -->
+    <section class="card-box" id="supervisor-approval-section" style="margin-bottom: 30px; display: none; border: 2px solid #e74c3c;">
+      <h3 class="section-title" style="color: #c0392b;">
+        <i class="fa-solid fa-user-clock"></i> لوحة إشراف الطلبات (طلبات الطلاب المعلقة)
+      </h3>
+      <div id="pending-students-list">
+        <p style="text-align: center; color: var(--text-muted); padding: 15px;">جاري تحميل طلبات الانضمام المعلقة...</p>
+      </div>
+    </section>
+
     <!-- 1. قسم تسجيل الحضور والغياب -->
     <section class="card-box">
       <h3 class="section-title"><i class="fa-solid fa-calendar-check"></i> تسجيل الحضور والغياب الأسبوعي</h3>
@@ -67,18 +77,15 @@
       </button>
     </section>
 
-    <!-- 2. قسم رفع المنهج أو ملف PDF للدرس -->
+    <!-- 2. رفع المنهج أو ملف PDF -->
     <section class="card-box">
       <h3 class="section-title"><i class="fa-solid fa-file-pdf"></i> رفع المنهج أو ملف PDF للمادة والمرحلة</h3>
       <form id="upload-pdf-form" class="control-form">
-        
-        <!-- حقل عنوان الدرس -->
         <div class="form-group">
           <label for="lesson-title">عنوان الدرس أو اللحن</label>
-          <input type="text" id="lesson-title" required placeholder="مثال: القديس اثاناسيوس حامي الايمان - لحن هوس ايروف:">
+          <input type="text" id="lesson-title" required placeholder="مثال: القديس اثاناسيوس حامي الايمان">
         </div>
 
-        <!-- قائمة اختيار المرحلة الدراسية -->
         <div class="form-group">
           <label for="lesson-grade">اختر المرحلة الدراسية</label>
           <select id="lesson-grade" required class="form-control">
@@ -90,7 +97,6 @@
           </select>
         </div>
 
-        <!-- قائمة اختيار المادة -->
         <div class="form-group">
           <label for="lesson-subject">اختر المادة</label>
           <select id="lesson-subject" required class="form-control">
@@ -102,7 +108,6 @@
           </select>
         </div>
 
-        <!-- حقل اختيار ملف الـ PDF -->
         <div class="form-group">
           <label for="lesson-pdf-file">اختر ملف الـ PDF من جهازك</label>
           <input type="file" id="lesson-pdf-file" accept=".pdf" required>
@@ -133,7 +138,7 @@
       </div>
     </section>
 
-    <!-- 3. قسم إنشاء الامتحانات (MCQ + مقالي) -->
+    <!-- 3. قسم إنشاء الامتحانات -->
     <section class="card-box">
       <h3 class="section-title"><i class="fa-solid fa-pen-to-square"></i> إنشاء امتحان أسبوعي جديد</h3>
       <form id="create-quiz-form" class="control-form">
@@ -183,7 +188,7 @@
             <input type="text" id="opt-1" placeholder="الاختيار الأول">
             <input type="text" id="opt-2" placeholder="الاختيار الثاني">
             <input type="text" id="opt-3" placeholder="الاختيار الثالث">
-            <input type="text" id="correct-opt" placeholder="الإجابة الصحيحة  ">
+            <input type="text" id="correct-opt" placeholder="الإجابة الصحيحة">
           </div>
           <button type="button" id="add-question-btn" class="btn btn-secondary">
             <i class="fa-solid fa-plus"></i> إضافة السؤال للقائمة
@@ -203,19 +208,22 @@
       </form>
     </section>
 
-    <!-- قسم إدارة الامتحانات الحالية -->
+    <!-- إدارة الامتحانات الحالية -->
     <section class="card-box manage-quizzes-section">
       <h3 class="section-title"><i class="fa-solid fa-list"></i> الامتحانات النشطة / السابقة</h3>
       <div id="admin-quizzes-list" class="quizzes-list-container" style="margin-top: 15px;">
         <p>جاري تحميل الامتحانات...</p>
       </div>
     </section>
-    <div id="essay-grading-section" style="margin-top: 30px; background: var(--color-surface); padding: 20px; border-radius: 8px;">
-  <h3>📝 تصحيح الأسئلة المقالية لـ المخدومين</h3>
-  <div id="essays-to-grade-container">
-    <p>جاري تحميل إجابات المخدومين بانتظار التصحيح...</p>
-  </div>
-</div>
+
+    <!-- قسم تصحيح الأسئلة المقالية -->
+    <div id="essay-grading-section" class="card-box" style="margin-top: 30px;">
+      <h3 class="section-title">📝 تصحيح الأسئلة المقالية للمخدومين</h3>
+      <div id="essays-to-grade-container">
+        <p>جاري تحميل إجابات المخدومين بانتظار التصحيح...</p>
+      </div>
+    </div>
+
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

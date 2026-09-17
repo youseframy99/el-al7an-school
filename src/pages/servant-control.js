@@ -3,7 +3,7 @@
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs, setDoc, addDoc, deleteDoc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, getDocs, setDoc, addDoc, deleteDoc, updateDoc, serverTimestamp, query, where } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 // إعدادات Supabase
 const SUPABASE_URL = 'https://rcgbpaoxtiasngpsdqib.supabase.co';
@@ -109,6 +109,15 @@ onAuthStateChanged(auth, async (user) => {
       if (servantSnap.exists()) {
         const servantData = servantSnap.data();
         servantNameDisplay.textContent = `أ / ${servantData.name || servantData.fullName || "خادم الفصل"}`;
+
+        // إظهار لوحة إشراف الطلبات المعلقة إذا كان خادم مشرف
+        if (servantData.isSupervisor === true) {
+          const supervisorSection = document.getElementById("supervisor-approval-section");
+          if (supervisorSection) {
+            supervisorSection.style.display = "block";
+            await loadPendingStudents();
+          }
+        }
       } else {
         servantNameDisplay.textContent = "خادم النظام";
       }
@@ -125,7 +134,133 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+// ==========================================
+// 0. إدارة وقبول/رفض الطلاب المعلقين (خاص بالمشرفين)
+// ==========================================
+async function loadPendingStudents() {
+  const container = document.getElementById("pending-students-list");
+  if (!container) return;
+
+  try {
+    const q = query(
+      collection(db, "users"),
+      where("accountType", "==", "student"),
+      where("status", "==", "pending")
+    );
+    const querySnapshot = await getDocs(q);
+
+    if (querySnapshot.empty) {
+      container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
+      return;
+    }
+
+    let html = `
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: right;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted);">
+              <th style="padding: 10px;">اسم الطالب</th>
+              <th style="padding: 10px;">رقم الواتساب</th>
+              <th style="padding: 10px;">المرحلة</th>
+              <th style="padding: 10px;">البريد الإلكتروني</th>
+              <th style="padding: 10px; text-align: center;">الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+
+    querySnapshot.forEach((docSnap) => {
+      const student = docSnap.data();
+      const studentId = docSnap.id;
+      const name = student.fullName || student.name || "طالب بدون اسم";
+      const phone = student.whatsapp || student.phone || "غير مسجل";
+      const grade = student.grade || student.classId || "غير محدد";
+      const email = student.email || "غير مسجل";
+
+      html += `
+        <tr id="pending-row-${studentId}" style="border-bottom: 1px solid var(--border-color); background: var(--card-bg);">
+          <td style="padding: 10px; font-weight: 600; color: var(--text-color);">${name}</td>
+          <td style="padding: 10px; direction: ltr; text-align: right; color: var(--text-color);">${phone}</td>
+          <td style="padding: 10px; color: #2980b9;">${grade}</td>
+          <td style="padding: 10px; color: var(--text-muted);">${email}</td>
+          <td style="padding: 10px; text-align: center;">
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button class="btn-approve" data-id="${studentId}" style="background: #27ae60; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-check"></i> قبول
+              </button>
+              <button class="btn-reject" data-id="${studentId}" style="background: #e74c3c; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-xmark"></i> رفض
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    html += `</tbody></table></div>`;
+    container.innerHTML = html;
+
+    container.querySelectorAll('.btn-approve').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        await approveStudent(id);
+      });
+    });
+
+    container.querySelectorAll('.btn-reject').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        await rejectStudent(id);
+      });
+    });
+
+  } catch (err) {
+    console.error("خطأ في جلب طلبات المعلقين:", err);
+    container.innerHTML = `<p style="text-align: center; color: #e74c3c; padding: 15px;">حدث خطأ أثناء تحميل الطلبات المعلقة.</p>`;
+  }
+}
+
+async function approveStudent(studentId) {
+  if (!confirm("هل أنت متأكد من قبول هذا الطالب وتفعيل حسابه؟")) return;
+  try {
+    await updateDoc(doc(db, "users", studentId), {
+      status: "approved"
+    });
+    const row = document.getElementById(`pending-row-${studentId}`);
+    if (row) row.remove();
+    showSuccess("تم قبول الطالب بنجاح ورُفع عنه حظر الدخول! ✅");
+    
+    const container = document.getElementById("pending-students-list");
+    if (container && container.querySelectorAll('tbody tr').length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
+    }
+  } catch (err) {
+    console.error("خطأ أثناء قبول الطالب:", err);
+    showError("حدث خطأ أثناء قبول الطالب!");
+  }
+}
+
+async function rejectStudent(studentId) {
+  if (!confirm("هل أنت متأكد من رفض هذا الطلب وحذف حسابه المعلق؟")) return;
+  try {
+    await deleteDoc(doc(db, "users", studentId));
+    const row = document.getElementById(`pending-row-${studentId}`);
+    if (row) row.remove();
+    showSuccess("تم رفض الطلب وحذف الحساب بنجاح! ❌");
+    
+    const container = document.getElementById("pending-students-list");
+    if (container && container.querySelectorAll('tbody tr').length === 0) {
+      container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
+    }
+  } catch (err) {
+    console.error("خطأ أثناء رفض الطالب:", err);
+    showError("حدث خطأ أثناء رفض الطلب!");
+  }
+}
+
+// ==========================================
 // 1. الحضور والغياب
+// ==========================================
 async function loadStudentsForAttendance() {
   if (!attendanceTableBody) return;
   try {
@@ -479,11 +614,11 @@ async function loadAdminQuizzes() {
 
       const quizCard = document.createElement("div");
       quizCard.className = "admin-quiz-card";
-      quizCard.style.cssText = "display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); padding: 12px; margin-bottom: 10px; border-radius: 6px; background: #fff;";
+      quizCard.style.cssText = "display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); padding: 12px; margin-bottom: 10px; border-radius: 6px; background: var(--card-bg);";
       quizCard.innerHTML = `
         <div class="quiz-info">
-          <h4 style="margin: 0 0 5px 0; color: #2c3e50;">${quiz.title}</h4>
-          <p style="margin: 0; font-size: 0.85rem; color: #666;">المرحلة: ${quiz.grade} | المادة: ${quiz.subject} | عدد الأسئلة: ${quiz.questions ? quiz.questions.length : 0}</p>
+          <h4 style="margin: 0 0 5px 0; color: var(--text-color);">${quiz.title}</h4>
+          <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">المرحلة: ${quiz.grade} | المادة: ${quiz.subject} | عدد الأسئلة: ${quiz.questions ? quiz.questions.length : 0}</p>
         </div>
         <div class="quiz-actions" style="display: flex; gap: 5px;">
           <button class="btn-edit" onclick="window.editQuiz('${quizId}')" style="background: #f39c12; color: #fff; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">✏️ تعديل</button>
@@ -567,10 +702,10 @@ async function loadEssaysForGrading() {
 
         pendingCount++;
         html += `
-          <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; margin-bottom: 15px; background: #fff;">
-            <h4 style="color: #2c3e50; margin-bottom: 5px;">امتحان: ${result.examTitle || 'بدون عنوان'}</h4>
-            <p style="font-size: 0.9rem; color: #666;">اسم المخدوم: <strong>${result.studentName || 'طالب'}</strong></p>
-            <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+          <div style="border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; margin-bottom: 15px; background: var(--card-bg);">
+            <h4 style="color: var(--text-color); margin-bottom: 5px;">امتحان: ${result.examTitle || 'بدون عنوان'}</h4>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">اسم المخدوم: <strong>${result.studentName || 'طالب'}</strong></p>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 10px 0;">
         `;
 
         questions.forEach((q, qIndex) => {
@@ -579,11 +714,11 @@ async function loadEssaysForGrading() {
             const currentEssayScore = (result.essayScores && result.essayScores[qIndex]) !== undefined ? result.essayScores[qIndex] : 0;
 
             html += `
-              <div style="margin-bottom: 12px; background: #f9f9f9; padding: 10px; border-radius: 6px;">
+              <div style="margin-bottom: 12px; background: var(--input-bg); padding: 10px; border-radius: 6px;">
                 <p><strong>س (${q.text || 'سؤال مقالي'}):</strong></p>
-                <p style="color: #444; font-style: italic; margin: 5px 0;">إجابة المخدوم: ${studentAnswer}</p>
+                <p style="color: var(--text-color); font-style: italic; margin: 5px 0;">إجابة المخدوم: ${studentAnswer}</p>
                 <label style="font-size: 0.85rem; font-weight: bold;">منح درجة (من 1):</label>
-                <input type="number" min="0" max="1" value="${currentEssayScore}" id="score_${resultId}_${qIndex}" style="width: 80px; padding: 4px; margin-right: 10px; border-radius: 4px; border: 1px solid #ccc;">
+                <input type="number" min="0" max="1" value="${currentEssayScore}" id="score_${resultId}_${qIndex}" style="width: 80px; padding: 4px; margin-right: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
               </div>
             `;
           }
@@ -599,7 +734,7 @@ async function loadEssaysForGrading() {
     }
 
     if (pendingCount === 0) {
-      container.innerHTML = `<p style="color: #777;">لا توجد إجابات مقالية بانتظار التصحيح حالياً.</p>`;
+      container.innerHTML = `<p style="color: var(--text-muted);">لا توجد إجابات مقالية بانتظار التصحيح حالياً.</p>`;
     } else {
       container.innerHTML = html;
     }
@@ -656,7 +791,7 @@ window.saveEssayGrades = async function(resultId, studentId, mcqScore) {
       }
     }
 
-    alert("تم حفظ درجات المقالي وتحديث نقاط المخدوم بنجاح! 🏆✨");
+    showSuccess("تم حفظ درجات المقالي وتحديث نقاط المخدوم بنجاح! 🏆✨");
     loadEssaysForGrading();
 
   } catch (err) {
