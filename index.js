@@ -9,6 +9,27 @@ function calculateLevel(points) {
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+    // 1. تحقق أولاً من حالة الحساب (Status) هل تم قبوله أم ما زال معلقاً؟
+    try {
+      const studentDocRef = doc(db, "users", user.uid);
+      const studentSnap = await getDoc(studentDocRef);
+
+      if (studentSnap.exists()) {
+        const studentData = studentSnap.data();
+        
+        // لو الحساب طالب وحالته pending (معلق ولم يتم اعتماده)
+        if (studentData.accountType === "student" && studentData.status === "pending") {
+          alert("عذراً، حسابك قيد المراجعة ولم يتم اعتماده من قِبل خادم الفصول بعد. برجاء الانتظار لحين قبول الطلب.");
+          await signOut(auth); // تسجيل خروج الطالب فوراً
+          window.location.href = '/login'; // توجيهه لصفحة الدخول
+          return;
+        }
+      }
+    } catch (e) {
+      console.error("خطأ في التحقق من حالة الحساب:", e);
+    }
+
+    // لو الحساب مقبول (approved)، كمل تحميل الداشبورد طبيعي
     await loadStudentDashboard(user);
   } else {
     window.location.href = '/login';
