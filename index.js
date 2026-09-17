@@ -7,6 +7,42 @@ function calculateLevel(points) {
   return Math.floor(pts / 30) + 1; 
 }
 
+// تفعيل الثيم (الوضع المظلم/الفاتح) وزر تسجيل الخروج أول ما الصفحة تفتح
+document.addEventListener("DOMContentLoaded", () => {
+  const themeToggleBtn = document.getElementById("theme-toggle");
+  const currentTheme = localStorage.getItem("theme");
+
+  if (currentTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", () => {
+      document.body.classList.toggle("dark-mode");
+      let theme = "light";
+      if (document.body.classList.contains("dark-mode")) {
+        theme = "dark";
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+      } else {
+        themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+      }
+      localStorage.setItem("theme", theme);
+    });
+  }
+
+  const logoutBtn = document.getElementById("logout-btn");
+  if (logoutBtn) {
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = '/login';
+      }).catch((error) => {
+        console.error("خطأ أثناء تسجيل الخروج:", error);
+      });
+    });
+  }
+});
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     try {
@@ -67,10 +103,8 @@ async function loadStudentDashboard(user) {
           }
         });
         
-        // ترتيب تنازلي حسب النقاط
         classStudents.sort((a, b) => b.points - a.points);
         
-        // حساب الترتيب مع مراعاة التساوي (Standard Competition Ranking)
         let myRank = 1;
         let found = false;
         for (let i = 0; i < classStudents.length; i++) {
@@ -278,15 +312,4 @@ async function loadLeaderboard(classId) {
     console.error("خطأ في تحميل لوحة الشرف للمخدوم:", err);
     lbContainer.innerHTML = `<p style="color: var(--text-muted);">تعذر تحميل لوحة الشرف.</p>`;
   }
-}
-
-const logoutBtn = document.getElementById("logout-btn");
-if (logoutBtn) {
-  logoutBtn.addEventListener("click", () => {
-    signOut(auth).then(() => {
-      window.location.href = '/login';
-    }).catch((error) => {
-      console.error("خطأ أثناء تسجيل الخروج:", error);
-    });
-  });
 }
