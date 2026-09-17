@@ -60,7 +60,6 @@ async function loadStudentDashboard(user) {
         allUsersSnap.forEach(docSnap => {
           const d = docSnap.data();
           const dClass = d.classId || d.grade || "";
-          // شرط: طالب وحالته معتمدة فقط
           const isStudent = (d.accountType === "student" || !d.accountType) && d.status === "approved";
           
           if (isStudent && dClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase()) {
@@ -68,11 +67,24 @@ async function loadStudentDashboard(user) {
           }
         });
         
+        // ترتيب تنازلي حسب النقاط
         classStudents.sort((a, b) => b.points - a.points);
-        const myIndex = classStudents.findIndex(s => s.uid === user.uid);
         
-        if (myIndex !== -1) {
-          document.getElementById("user-rank").innerText = `#${myIndex + 1}`;
+        // حساب الترتيب مع مراعاة التساوي (Standard Competition Ranking)
+        let myRank = 1;
+        let found = false;
+        for (let i = 0; i < classStudents.length; i++) {
+          if (i > 0 && classStudents[i].points < classStudents[i - 1].points) {
+            myRank = i + 1;
+          }
+          if (classStudents[i].uid === user.uid) {
+            found = true;
+            break;
+          }
+        }
+        
+        if (found) {
+          document.getElementById("user-rank").innerText = `#${myRank}`;
         } else {
           document.getElementById("user-rank").innerText = `--`;
         }
@@ -219,7 +231,6 @@ async function loadLeaderboard(classId) {
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
       const studentClass = data.classId || data.grade || "";
-      // شرط: طالب وحالته معتمدة فقط
       const isStudent = (data.accountType === "student" || !data.accountType) && data.status === "approved";
       
       if (isStudent && studentClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase()) {
@@ -238,6 +249,10 @@ async function loadLeaderboard(classId) {
     let rank = 1;
     
     for (let i = 0; i < Math.min(students.length, 5); i++) {
+      if (i > 0 && students[i].points < students[i - 1].points) {
+        rank = i + 1;
+      }
+
       const uData = students[i];
       const name = uData.fullName || uData.name || "مخدوم";
       const pts = uData.points || 0;
@@ -256,7 +271,6 @@ async function loadLeaderboard(classId) {
           <span style="font-weight: bold; color: #2ecc71;">${pts} نقطة</span>
         </div>
       `;
-      rank++;
     }
     html += `</div>`;
     lbContainer.innerHTML = html;

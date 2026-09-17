@@ -95,7 +95,6 @@ async function loadMultipleClassStudents(classIds) {
       let stageTitle = `المرحلة / الفصل: ${classId}`;
       let students = allUsers.filter(user => {
         const uClass = user.classId || user.grade || "";
-        // شرط: استبعاد الطلاب المعلقين (pending)
         const isStudent = (user.accountType === "student" || !user.accountType) && user.status === "approved";
         return isStudent && uClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase();
       });
@@ -150,7 +149,7 @@ async function loadMultipleClassStudents(classIds) {
   }
 }
 
-// عرض لوحة الشرف (تتم فلترة المعلقين هنا أيضاً)
+// عرض لوحة الشرف (مع مراعاة تساوى المراكز)
 async function loadMultipleLeaderboards(classIds) {
   const lbContainer = document.getElementById("leaderboard-container");
   if (!lbContainer) return;
@@ -165,7 +164,6 @@ async function loadMultipleLeaderboards(classIds) {
       let stageTitle = `المرحلة / الفصل: ${classId}`;
       let students = allUsers.filter(user => {
         const uClass = user.classId || user.grade || "";
-        // شرط: استبعاد الطلاب المعلقين (pending)
         const isStudent = (user.accountType === "student" || !user.accountType) && user.status === "approved";
         return isStudent && uClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase();
       });
@@ -183,13 +181,16 @@ async function loadMultipleLeaderboards(classIds) {
       stageHtml += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
       let rank = 1;
       for (let i = 0; i < Math.min(students.length, 5); i++) {
+        if (i > 0 && students[i].points < students[i - 1].points) {
+          rank = i + 1;
+        }
+
         const student = students[i];
         const name = student.fullName || student.name || "طالب";
         const points = student.points || 0;
         let badgeColor = rank === 1 ? "#f1c40f" : (rank === 2 ? "#bdc3c7" : "#d35400");
 
         stageHtml += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);"><div style="display: flex; align-items: center; gap: 10px;"><span style="background: ${badgeColor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${rank}</span><span style="font-weight: 600; font-size: 0.95rem; color: #333;">${name}</span></div><span style="font-weight: bold; color: #2ecc71; font-size: 0.95rem;">${points} نقطة</span></div>`;
-        rank++;
       }
       stageHtml += `</div></div>`;
       lbContainer.innerHTML += stageHtml;
@@ -209,7 +210,6 @@ async function loadAttendanceHistory(classIds) {
     userSnapshot.forEach(docSnap => {
       const u = docSnap.data();
       const uClass = u.classId || u.grade || "";
-      // جلب الطلاب المقبولين فقط للأرشيف
       const isApprovedStudent = (u.accountType === "student" || !u.accountType) && u.status === "approved";
       if (isApprovedStudent && classIds.some(c => c.toString().trim().toLowerCase() === uClass.toString().trim().toLowerCase())) {
         studentsMap[docSnap.id] = u.fullName || u.name || "طالب";
@@ -260,7 +260,6 @@ async function loadStudentExamGrades(classIds) {
     userSnapshot.forEach(docSnap => {
       const user = docSnap.data();
       const uClass = (user.classId || user.grade || "").toString().trim().toLowerCase();
-      // المقبولين فقط
       const isStudent = (user.accountType === "student" || !user.accountType) && user.status === "approved";
       
       if (isStudent && normalizedClassIds.includes(uClass)) {
