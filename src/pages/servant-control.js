@@ -10,7 +10,6 @@ const SUPABASE_URL = 'https://rcgbpaoxtiasngpsdqib.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_rj9pXdXMFUPbMydUtzOcTQ_uFaOxR8T';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// إعدادات فايربيس
 const firebaseConfig = {
   apiKey: "AIzaSyC8oBF0wWzLC7kxk7uzR4Wn5pWTC7BZavo",
   authDomain: "el-al7an-school.firebaseapp.com",
@@ -24,7 +23,6 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// عناصر واجهة المستخدم
 const servantNameDisplay = document.getElementById("servant-name-display");
 const errorMsg = document.getElementById("error-msg");
 const successMsg = document.getElementById("success-msg");
@@ -49,12 +47,9 @@ const correctOptInput = document.getElementById("correct-opt");
 const addQuestionBtn = document.getElementById("add-question-btn");
 const questionsListPreview = document.getElementById("questions-list-preview");
 
-// مصفوفة مؤقتة لتخزين أسئلة الامتحان
 let temporaryQuestionsList = JSON.parse(localStorage.getItem("draft_questions")) || [];
 
-// أول ما الصفحة تفتح
 document.addEventListener("DOMContentLoaded", () => {
-  // تفعيل الثيم (الوضع المظلم/الفاتح)
   const themeToggleBtn = document.getElementById("theme-toggle");
   const currentTheme = localStorage.getItem("theme");
 
@@ -82,7 +77,6 @@ document.addEventListener("DOMContentLoaded", () => {
   loadEssaysForGrading();
 });
 
-// رسائل النجاح والخطأ
 function showSuccess(message) {
   if(!successMsg) return;
   successMsg.textContent = message;
@@ -99,7 +93,6 @@ function showError(message) {
   setTimeout(() => errorMsg.classList.add("hidden"), 5000);
 }
 
-// مراقبة المصادقة
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     try {
@@ -110,7 +103,6 @@ onAuthStateChanged(auth, async (user) => {
         const servantData = servantSnap.data();
         servantNameDisplay.textContent = `أ / ${servantData.name || servantData.fullName || "خادم الفصل"}`;
 
-        // إظهار لوحة إشراف الطلبات المعلقة إذا كان خادم مشرف
         if (servantData.isSupervisor === true) {
           const supervisorSection = document.getElementById("supervisor-approval-section");
           if (supervisorSection) {
@@ -134,9 +126,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// ==========================================
-// 0. إدارة وقبول/رفض الطلاب المعلقين (خاص بالمشرفين)
-// ==========================================
 async function loadPendingStudents() {
   const container = document.getElementById("pending-students-list");
   if (!container) return;
@@ -258,9 +247,7 @@ async function rejectStudent(studentId) {
   }
 }
 
-// ==========================================
-// 1. الحضور والغياب
-// ==========================================
+// 1. الحضور والغياب (تتم فلترة الطلاب المعلقين هنا)
 async function loadStudentsForAttendance() {
   if (!attendanceTableBody) return;
   try {
@@ -285,6 +272,11 @@ async function loadStudentsForAttendance() {
       const userType = (userData.accountType || userData.role || userData.type || "").toLowerCase();
       
       if (userType === "servant") {
+        return;
+      }
+
+      // شرط: استبعاد الطلاب المعلقين (pending) من قائمة الحضور والغياب
+      if (userData.status === "pending") {
         return;
       }
 
@@ -411,7 +403,6 @@ if (uploadPdfForm) {
   });
 }
 
-// 3. إدارة الأسئلة والامتحانات
 if (addQuestionBtn) {
   addQuestionBtn.addEventListener("click", () => {
     const qText = qTextInput.value.trim();
@@ -540,7 +531,6 @@ if (qTypeSelect) {
   });
 }
 
-// 4. جلب وعرض الدروس والملفات المرفوعة
 async function loadUploadedLessons() {
   const lessonsTableBody = document.getElementById("lessons-table-body");
   if (!lessonsTableBody) return;
@@ -593,7 +583,6 @@ window.deleteLesson = async function(lessonId, filePath) {
   }
 };
 
-// 5. إدارة الامتحانات الحالية
 async function loadAdminQuizzes() {
   const container = document.getElementById("admin-quizzes-list");
   if (!container) return;
@@ -669,9 +658,6 @@ window.editQuiz = async function(quizId) {
   }
 };
 
-// ==========================================
-// 7. نظام تصحيح الأسئلة المقالية للكنترول
-// ==========================================
 async function loadEssaysForGrading() {
   const container = document.getElementById("essays-to-grade-container");
   if (!container) return;

@@ -9,7 +9,6 @@ function calculateLevel(points) {
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    // 1. تحقق أولاً من حالة الحساب (Status) هل تم قبوله أم ما زال معلقاً؟
     try {
       const studentDocRef = doc(db, "users", user.uid);
       const studentSnap = await getDoc(studentDocRef);
@@ -17,11 +16,10 @@ onAuthStateChanged(auth, async (user) => {
       if (studentSnap.exists()) {
         const studentData = studentSnap.data();
         
-        // لو الحساب طالب وحالته pending (معلق ولم يتم اعتماده)
         if (studentData.accountType === "student" && studentData.status === "pending") {
           alert("عذراً، حسابك قيد المراجعة ولم يتم اعتماده من قِبل خادم الفصول بعد. برجاء الانتظار لحين قبول الطلب.");
-          await signOut(auth); // تسجيل خروج الطالب فوراً
-          window.location.href = '/login'; // توجيهه لصفحة الدخول
+          await signOut(auth);
+          window.location.href = '/login';
           return;
         }
       }
@@ -29,7 +27,6 @@ onAuthStateChanged(auth, async (user) => {
       console.error("خطأ في التحقق من حالة الحساب:", e);
     }
 
-    // لو الحساب مقبول (approved)، كمل تحميل الداشبورد طبيعي
     await loadStudentDashboard(user);
   } else {
     window.location.href = '/login';
@@ -57,20 +54,20 @@ async function loadStudentDashboard(user) {
       document.getElementById("user-level").innerHTML = `<i class="fa-solid fa-crown"></i> المستوى: ${currentLevel}`;
       document.getElementById("user-points").innerText = points;
 
-      // 1. حساب الترتيب في الليدر بورد للفصل برمجياً بشكل دقيق
       if (classId) {
         const allUsersSnap = await getDocs(collection(db, "users"));
         let classStudents = [];
         allUsersSnap.forEach(docSnap => {
           const d = docSnap.data();
           const dClass = d.classId || d.grade || "";
-          const isStudent = d.accountType === "student" || !d.accountType;
+          // شرط: طالب وحالته معتمدة فقط
+          const isStudent = (d.accountType === "student" || !d.accountType) && d.status === "approved";
+          
           if (isStudent && dClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase()) {
             classStudents.push({ uid: docSnap.id, points: Number(d.points) || 0 });
           }
         });
         
-        // ترتيب تنازلي حسب النقاط
         classStudents.sort((a, b) => b.points - a.points);
         const myIndex = classStudents.findIndex(s => s.uid === user.uid);
         
@@ -81,7 +78,6 @@ async function loadStudentDashboard(user) {
         }
       }
 
-      // 2. حساب نسبة الحضور الحقيقية بناءً على كولكشن الحضور (Attendance)
       const attendanceQuery = query(collection(db, "attendance"), where("studentId", "==", user.uid));
       const attSnap = await getDocs(attendanceQuery);
       
@@ -207,13 +203,11 @@ async function loadStudentGrades(studentId) {
   }
 }
 
-// تحميل لوحة الشرف الخاصة بمرحلة المخدوم فقط
 async function loadLeaderboard(classId) {
   const lbContainer = document.getElementById("leaderboard-container");
   if (!lbContainer) return;
 
   try {
-    // جلب كل المستخدمين لتجنب مشاكل الفهارس والشروط المعقدة في فايرستور
     const snapshot = await getDocs(collection(db, "users"));
 
     if (snapshot.empty) {
@@ -224,9 +218,9 @@ async function loadLeaderboard(classId) {
     let students = [];
     snapshot.forEach(docSnap => {
       const data = docSnap.data();
-      // فلترة الطلاب التابعين لنفس الفصل فقط برمجياً
       const studentClass = data.classId || data.grade || "";
-      const isStudent = data.accountType === "student" || !data.accountType;
+      // شرط: طالب وحالته معتمدة فقط
+      const isStudent = (data.accountType === "student" || !data.accountType) && data.status === "approved";
       
       if (isStudent && studentClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase()) {
         students.push(data);
@@ -238,7 +232,6 @@ async function loadLeaderboard(classId) {
       return;
     }
 
-    // ترتيب الطلاب تنازلياً حسب النقاط
     students.sort((a, b) => (Number(b.points) || 0) - (Number(a.points) || 0));
 
     let html = `<div style="display: flex; flex-direction: column; gap: 8px;">`;

@@ -77,7 +77,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// عرض الطلاب لكل مرحلة بدون أزرار حضور
+// عرض الطلاب لكل مرحلة (تتم فلترة غير المقبولين هنا)
 async function loadMultipleClassStudents(classIds) {
   const mainContainer = document.getElementById("students-container");
   if (!mainContainer) return;
@@ -95,7 +95,8 @@ async function loadMultipleClassStudents(classIds) {
       let stageTitle = `المرحلة / الفصل: ${classId}`;
       let students = allUsers.filter(user => {
         const uClass = user.classId || user.grade || "";
-        const isStudent = user.accountType === "student" || !user.accountType;
+        // شرط: استبعاد الطلاب المعلقين (pending)
+        const isStudent = (user.accountType === "student" || !user.accountType) && user.status === "approved";
         return isStudent && uClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase();
       });
 
@@ -149,7 +150,7 @@ async function loadMultipleClassStudents(classIds) {
   }
 }
 
-// عرض لوحة الشرف
+// عرض لوحة الشرف (تتم فلترة المعلقين هنا أيضاً)
 async function loadMultipleLeaderboards(classIds) {
   const lbContainer = document.getElementById("leaderboard-container");
   if (!lbContainer) return;
@@ -164,7 +165,8 @@ async function loadMultipleLeaderboards(classIds) {
       let stageTitle = `المرحلة / الفصل: ${classId}`;
       let students = allUsers.filter(user => {
         const uClass = user.classId || user.grade || "";
-        const isStudent = user.accountType === "student" || !user.accountType;
+        // شرط: استبعاد الطلاب المعلقين (pending)
+        const isStudent = (user.accountType === "student" || !user.accountType) && user.status === "approved";
         return isStudent && uClass.toString().trim().toLowerCase() === classId.toString().trim().toLowerCase();
       });
 
@@ -197,7 +199,6 @@ async function loadMultipleLeaderboards(classIds) {
   }
 }
 
-// عرض سجلات الحضور السابق
 async function loadAttendanceHistory(classIds) {
   const container = document.getElementById("attendance-history-list");
   if (!container) return;
@@ -208,7 +209,9 @@ async function loadAttendanceHistory(classIds) {
     userSnapshot.forEach(docSnap => {
       const u = docSnap.data();
       const uClass = u.classId || u.grade || "";
-      if (classIds.some(c => c.toString().trim().toLowerCase() === uClass.toString().trim().toLowerCase())) {
+      // جلب الطلاب المقبولين فقط للأرشيف
+      const isApprovedStudent = (u.accountType === "student" || !u.accountType) && u.status === "approved";
+      if (isApprovedStudent && classIds.some(c => c.toString().trim().toLowerCase() === uClass.toString().trim().toLowerCase())) {
         studentsMap[docSnap.id] = u.fullName || u.name || "طالب";
       }
     });
@@ -238,7 +241,6 @@ async function loadAttendanceHistory(classIds) {
   }
 }
 
-// عرض درجات الامتحانات للطلاب
 async function loadStudentExamGrades(classIds) {
   const container = document.getElementById("grades-table-wrapper");
   if (!container) return;
@@ -258,7 +260,8 @@ async function loadStudentExamGrades(classIds) {
     userSnapshot.forEach(docSnap => {
       const user = docSnap.data();
       const uClass = (user.classId || user.grade || "").toString().trim().toLowerCase();
-      const isStudent = user.accountType === "student" || !user.accountType;
+      // المقبولين فقط
+      const isStudent = (user.accountType === "student" || !user.accountType) && user.status === "approved";
       
       if (isStudent && normalizedClassIds.includes(uClass)) {
         studentsMap[docSnap.id] = {
