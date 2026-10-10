@@ -2,7 +2,6 @@ import { db, auth } from './src/config/firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// دالة حساب المستوى ديناميكياً (كل 30 نقطة مستوى جديد)
 function calculateLevel(points) {
   const pts = Number(points) || 0;
   return Math.floor(pts / 30) + 1; 
@@ -191,9 +190,8 @@ async function loadStudentDashboard(user) {
       fullName = studentData.fullName || studentData.name || studentData.studentName || "";
       classId = studentData.classId || studentData.grade || "";
 
-      const points = Number(studentData.points) || 0;
-      // حساب المستوى ديناميكياً بدقة (كل 30 نقطة مستوى جديد)
-      const currentLevel = calculateLevel(points);
+      const points = studentData.points || 0;
+      const currentLevel = studentData.level || calculateLevel(points);
 
       document.getElementById("user-level").innerHTML = `<i class="fa-solid fa-crown"></i> المستوى: ${currentLevel}`;
       document.getElementById("user-points").innerText = points;
