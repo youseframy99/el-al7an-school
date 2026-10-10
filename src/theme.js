@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       100% { transform: translate(-3%, -2%) scale(0.95); }
     }
 
-    /* حاوية القديسين ظاهرة فوراً من البداية */
+    /* حاوية القديسين مع أنيمشن ظهور هادئ وتدريجي */
     .saints-container {
       position: absolute;
       width: 100%;
@@ -88,8 +88,20 @@ document.addEventListener("DOMContentLoaded", () => {
       align-items: center;
       padding: 0 40px;
       pointer-events: none;
-      opacity: 1;
+      opacity: 0;
+      animation: saintsFadeIn 2.5s ease-out forwards 0.4s;
       z-index: 2;
+    }
+
+    @keyframes saintsFadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     /* مجموعات القديسين فوق بعضها (شكل عمودي) */
