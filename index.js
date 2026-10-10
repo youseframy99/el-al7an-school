@@ -232,15 +232,17 @@ async function loadStudentDashboard(user) {
         }
       }
 
-      const attendanceQuery = query(collection(db, "attendance"), where("studentId", "==", user.uid));
-      const attSnap = await getDocs(attendanceQuery);
+      // جلب نسبة الحضور بالطريقة الصحيحة من المسار الفرعي للطالب
+      const attendanceCollRef = collection(db, "students", user.uid, "attendance");
+      const attSnap = await getDocs(attendanceCollRef);
       
       let totalClasses = 0;
       let attendedClasses = 0;
       
       attSnap.forEach(docSnap => {
+        const attData = docSnap.data();
         totalClasses++;
-        if (docSnap.data().status === "present") {
+        if (attData.present === true) {
           attendedClasses++;
         }
       });
