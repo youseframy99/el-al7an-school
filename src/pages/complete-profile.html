@@ -33,7 +33,13 @@
       <label for="whatsapp">رقم الواتساب</label>
       <input type="tel" id="whatsapp" required maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
 
-      <label for="accountType">نوع الحساب</label>
+      <!-- خانة رقم ولي الأمر مباشرة تحت الواتساب وتظهر فقط للطالب -->
+      <div id="parent-phone-group" class="hidden" style="margin-top: 15px;">
+        <label for="parentPhone">رقم ولي الأمر</label>
+        <input type="tel" id="parentPhone" maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
+      </div>
+
+      <label for="accountType" style="margin-top: 15px;">نوع الحساب</label>
       <select id="accountType" required>
         <option value="" disabled selected>اختر النوع</option>
         <option value="student">طالب</option>
@@ -50,10 +56,6 @@
           <option value="5-6-primary">خامسة وسادسة ابتدائي</option>
           <option value="preparatory">المرحلة الإعدادية</option>
         </select>
-
-        <!-- خانة رقم ولي الأمر -->
-        <label for="parentPhone" style="margin-top: 15px;">رقم ولي الأمر</label>
-        <input type="tel" id="parentPhone" maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
       </div>
 
       <div id="servant-fields" class="conditional-fields hidden">
@@ -130,6 +132,7 @@
       const accountType = document.getElementById("accountType");
       const studentFields = document.getElementById("student-fields");
       const servantFields = document.getElementById("servant-fields");
+      const parentPhoneGroup = document.getElementById("parent-phone-group");
       const whatsappInput = document.getElementById("whatsapp");
       const isSupervisorCheck = document.getElementById("isSupervisorCheck");
       const supervisorCodeGroup = document.getElementById("supervisor-code-group");
@@ -139,12 +142,15 @@
         if (val === "student") {
           studentFields.classList.remove("hidden");
           servantFields.classList.add("hidden");
+          if (parentPhoneGroup) parentPhoneGroup.classList.remove("hidden");
         } else if (val === "servant") {
           studentFields.classList.add("hidden");
           servantFields.classList.remove("hidden");
+          if (parentPhoneGroup) parentPhoneGroup.classList.add("hidden");
         } else {
           studentFields.classList.add("hidden");
           servantFields.classList.add("hidden");
+          if (parentPhoneGroup) parentPhoneGroup.classList.add("hidden");
         }
       }
 

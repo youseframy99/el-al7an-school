@@ -52,7 +52,13 @@
       <label for="whatsapp">رقم الواتساب</label>
       <input type="tel" id="whatsapp" required maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
 
-      <label for="email">البريد الإلكتروني</label>
+      <!-- خانة رقم ولي الأمر مباشرة تحت الواتساب وتظهر فقط للطالب -->
+      <div id="parent-phone-group" class="hidden" style="margin-top: 15px;">
+        <label for="parentPhone">رقم ولي الأمر</label>
+        <input type="tel" id="parentPhone" maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
+      </div>
+
+      <label for="email" style="margin-top: 15px;">البريد الإلكتروني</label>
       <input type="email" id="email" required>
 
       <label for="password">كلمة المرور</label>
@@ -84,10 +90,6 @@
           <option value="5-6-primary">خامسة وسادسة ابتدائي</option>
           <option value="preparatory">المرحلة الإعدادية</option>
         </select>
-
-        <!-- خانة رقم ولي الأمر الخاصة بالطالب -->
-        <label for="parentPhone" style="margin-top: 15px;">رقم ولي الأمر</label>
-        <input type="tel" id="parentPhone" maxlength="11" placeholder="01xxxxxxxxx" pattern="^(010|011|012|015)[0-9]{8}$">
       </div>
 
       <div id="servant-fields" class="conditional-fields hidden">
@@ -139,6 +141,24 @@
       <p class="switch-link">عندك حساب؟ <a href="/login">تسجيل الدخول</a></p>
     </form>
   </main>
+
+  <!-- تحديث سكริبت إظهار حقل ولي الأمر عند اختيار طالب -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const accountTypeSelect = document.getElementById("accountType");
+      const parentPhoneGroup = document.getElementById("parent-phone-group");
+      
+      if (accountTypeSelect && parentPhoneGroup) {
+        accountTypeSelect.addEventListener("change", () => {
+          if (accountTypeSelect.value === "student") {
+            parentPhoneGroup.classList.remove("hidden");
+          } else {
+            parentPhoneGroup.classList.add("hidden");
+          }
+        });
+      }
+    });
+  </script>
 
   <script src="/src/theme.js"></script>
   <script type="module" src="/src/pages/signup.js"></script>
