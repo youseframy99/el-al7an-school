@@ -24,7 +24,7 @@ onAuthStateChanged(auth, async (user) => {
 
 async function loadExamDetails(id) {
   try {
-    // 1. الحماية: التحقق هل الطالب قام بتسليم هذا الامتحان من قبل لمنع التكرار وجمع النقاط وهمياً
+    // 1. الحماية: التحقق هل الطالب قام بتسليم هذا الامتحان من قبل لمنع التكرار وجمع النقاط وهمياً[cite: 20]
     const resultDocId = `${id}_${currentStudent.uid}`;
     const existingResultSnap = await getDoc(doc(db, "examResults", resultDocId));
 
@@ -42,7 +42,7 @@ async function loadExamDetails(id) {
       return;
     }
 
-    // 2. جلب تفاصيل الامتحان لو لم يقم بحله من قبل
+    // 2. جلب تفاصيل الامتحان لو لم يقم بحله من قبل[cite: 20]
     const examDocRef = doc(db, "quizzes", id);
     const snap = await getDoc(examDocRef);
 
@@ -65,7 +65,7 @@ async function loadExamDetails(id) {
   }
 }
 
-// دالة خلط عشوائي (Shuffle) عامة لخلط الأسئلة والخيارات
+// دالة خلط عشوائي (Shuffle) عامة لخلط الأسئلة والخيارات[cite: 20]
 function shuffleArray(array) {
   let currentIndex = array.length, randomIndex;
   while (currentIndex !== 0) {
@@ -83,12 +83,12 @@ function renderQuestions(questions) {
     return;
   }
 
-  // عمل نسخة من الأسئلة وخلطها عشوائياً (Shuffle للأسئلة)
+  // عمل نسخة من الأسئلة وخلطها عشوائياً (Shuffle للأسئلة)[cite: 20]
   let shuffledQuestions = shuffleArray([...questions]);
 
   let html = "";
   shuffledQuestions.forEach((q, actualIndex) => {
-    // إيجاد الفهرس الحقيقي للسؤال في المصفوفة الأصلية عشان تصحيح الإجابات يفضل مظبوط 100%
+    // إيجاد الفهرس الحقيقي للسؤال في المصفوفة الأصلية عشان تصحيح الإجابات يفضل مظبوط 100%[cite: 20]
     const originalIndex = questions.indexOf(q);
     const qText = q.text || q.questionText || "سؤال بدون نص";
     
@@ -96,13 +96,13 @@ function renderQuestions(questions) {
     html += `<p style="font-weight: bold; margin-bottom: 10px;">س${actualIndex + 1}: ${qText} <span style="font-size: 0.8rem; color: var(--color-text-muted);">(${q.score || 1} درجة)</span></p>`;
 
     if (q.type === "mcq") {
-      // تجميع الخيارات وضمان وجود الإجابة الصحيحة ضمنها لمنع اختفائها
+      // تجميع الخيارات وضمان وجود الإجابة الصحيحة ضمنها لمنع اختفائها[cite: 20]
       let allOptions = q.options ? [...q.options] : [];
       if (q.correctAnswer && !allOptions.includes(q.correctAnswer)) {
         allOptions.push(q.correctAnswer);
       }
 
-      // خلط الاختيارات عشوائياً لكل سؤال (Shuffle للخيارات)
+      // خلط الاختيارات عشوائياً لكل سؤال (Shuffle للخيارات)[cite: 20]
       let shuffledOptions = shuffleArray(allOptions);
 
       shuffledOptions.forEach((opt) => {
@@ -114,7 +114,7 @@ function renderQuestions(questions) {
         `;
       });
     } else {
-      // الأسئلة المقالية
+      // الأسئلة المقالية[cite: 20]
       html += `
         <textarea name="q_${originalIndex}" rows="3" placeholder="اكتب إجابتك هنا..." required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-family: inherit;"></textarea>
       `;
@@ -124,7 +124,44 @@ function renderQuestions(questions) {
   container.innerHTML = html;
 }
 
-// معالجة تسليم الامتحان وحساب درجات الـ MCQ تلقائياً وتحديث نقاط الطالب
+// دالة الاحتفال العظمى (ألعاب نارية + صوت)
+function triggerCelebration() {
+  const celebrationAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+  celebrationAudio.volume = 0.8;
+  celebrationAudio.play().catch(e => console.log("متصفح الطالب منع تشغيل الصوت تلقائياً:", e));
+
+  if (typeof confetti === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
+    script.onload = () => runFireworks();
+    document.head.appendChild(script);
+  } else {
+    runFireworks();
+  }
+}
+
+// دالة إطلاق الصواريخ والألعاب النارية المتكررة
+function runFireworks() {
+  const duration = 3.5 * 1000;
+  const animationEnd = Date.now() + duration;
+  const defaults = { startVelocity: 35, spread: 360, ticks: 80, zIndex: 999999 };
+
+  function randomInRange(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  const interval = setInterval(function() {
+    const timeLeft = animationEnd - Date.now();
+    if (timeLeft <= 0) {
+      return clearInterval(interval);
+    }
+    const particleCount = 50 * (timeLeft / duration);
+    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+  }, 250);
+}
+
+// معالجة تسليم الامتحان وحساب درجات الـ MCQ تلقائياً وتحديث نقاط الطالب[cite: 20]
 document.getElementById("exam-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!examData || !currentStudent) return;
@@ -151,7 +188,7 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
         const selectedVal = selected ? selected.value : ""; 
         studentAnswers[index] = selectedVal;
         
-        // التصحيح الآلي بمطابقة النص المختار مع الإجابة الصحيحة المخزنة
+        // التصحيح الآلي بمطابقة النص المختار مع الإجابة الصحيحة المخزنة[cite: 20]
         const correctAns = q.correctAnswer || q.correctOption || "";
         if (selectedVal.trim() === correctAns.trim()) {
           mcqScore += (q.score || 1);
@@ -163,7 +200,7 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
       }
     });
 
-    // 1. تحديث نقاط الطالب في كولكشن users (تتم فقط إذا كان الامتحان يخلو تماماً من الأسئلة المقالية لمنع التكرار)
+    // 1. تحديث نقاط الطالب في كولكشن users (تتم فقط إذا كان الامتحان يخلو تماماً من الأسئلة المقالية لمنع التكرار)[cite: 20]
     if (!hasEssay) {
       const currentPoints = Number(studentData.points || studentData.score || 0);
       const newTotalPoints = currentPoints + mcqScore;
@@ -172,7 +209,7 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
       }, { merge: true });
     }
 
-    // 2. حفظ النتيجة في كولكشن examResults
+    // 2. حفظ النتيجة في كولكشن examResults[cite: 20]
     const resultData = {
       examId: examId,
       examTitle: examData.title || "امتحان أسبوعي",
@@ -189,13 +226,16 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
     const resultDocId = `${examId}_${currentStudent.uid}`;
     await setDoc(doc(db, "examResults", resultDocId), resultData);
 
-    // إخفاء النموذج وعرض رسالة النجاح
+    // إخفاء النموذج وعرض رسالة النجاح[cite: 20]
     document.getElementById("exam-form").style.display = "none";
     document.getElementById("score-summary").innerText = hasEssay 
       ? `تم تسليم إجاباتك بنجاح! درجة الاختياري المرصودة: ${mcqScore} (في انتظار تصحيح الأسئلة المقالية وإضافة المجموع النهائي)`
       : `درجتك النهائية: ${mcqScore} من الإجمالي`;
     
     document.getElementById("exam-result-box").style.display = "block";
+
+    // 🚀 تشغيل بهجة الاحتفال والألعاب النارية والصوت فور التسليم!
+    triggerCelebration();
 
   } catch (err) {
     console.error("خطأ أثناء تسليم الامتحان:", err);
