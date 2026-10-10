@@ -163,12 +163,14 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
       }
     });
 
-    // 1. تحديث نقاط الطالب في كولكشن users (إضافة نقاط الـ MCQ الحالية لرصيده)
-    const currentPoints = Number(studentData.points || studentData.score || 0);
-    const newTotalPoints = currentPoints + mcqScore;
-    await setDoc(studentDocRef, {
-      points: newTotalPoints
-    }, { merge: true });
+    // 1. تحديث نقاط الطالب في كولكشن users (تتم فقط إذا كان الامتحان يخلو تماماً من الأسئلة المقالية لمنع التكرار)
+    if (!hasEssay) {
+      const currentPoints = Number(studentData.points || studentData.score || 0);
+      const newTotalPoints = currentPoints + mcqScore;
+      await setDoc(studentDocRef, {
+        points: newTotalPoints
+      }, { merge: true });
+    }
 
     // 2. حفظ النتيجة في كولكشن examResults
     const resultData = {
@@ -190,7 +192,7 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
     // إخفاء النموذج وعرض رسالة النجاح
     document.getElementById("exam-form").style.display = "none";
     document.getElementById("score-summary").innerText = hasEssay 
-      ? `درجة الأسئلة الاختيارية المرصودة آلياً: ${mcqScore}`
+      ? `تم تسليم إجاباتك بنجاح! درجة الاختياري المرصودة: ${mcqScore} (في انتظار تصحيح الأسئلة المقالية وإضافة المجموع النهائي)`
       : `درجتك النهائية: ${mcqScore} من الإجمالي`;
     
     document.getElementById("exam-result-box").style.display = "block";
