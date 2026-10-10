@@ -47,6 +47,15 @@ onAuthStateChanged(auth, async (user) => {
 
       if (userSnap.exists()) {
         const userData = userSnap.data();
+
+        // 🔒 الحراسة الأمنية الصارمة لمنع الطلاب من دخول لوحة الخادم
+        const accountType = (userData.accountType || "").toLowerCase();
+        if (accountType !== "servant") {
+          alert("🚫 عذراً، لا تملك صلاحية الوصول إلى هذه الصفحة!");
+          window.location.href = "/";
+          return;
+        }
+
         const servantName = userData.fullName || userData.name || user.displayName || "خادم الكنيسة";
         if (nameElem) nameElem.innerText = servantName;
 
@@ -66,7 +75,9 @@ onAuthStateChanged(auth, async (user) => {
         }
 
       } else {
-        if (nameElem) nameElem.innerText = user.displayName || "خادم";
+        alert("بيانات الحساب غير موجودة!");
+        window.location.href = "/login";
+        return;
       }
     } catch (e) {
       console.error("خطأ في جلب بيانات الخادم:", e);
@@ -190,7 +201,7 @@ async function loadMultipleLeaderboards(classIds) {
         const points = student.points || 0;
         let badgeColor = rank === 1 ? "#f1c40f" : (rank === 2 ? "#bdc3c7" : "#d35400");
 
-        stageHtml += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);"><div style="display: flex; align-items: center; gap: 10px;"><span style="background: ${badgeColor}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${rank}</span><span style="font-weight: 600; font-size: 0.95rem; color: #333;">${name}</span></div><span style="font-weight: bold; color: #2ecc71; font-size: 0.95rem;">${points} نقطة</span></div>`;
+        stageHtml += `<div style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color);"><div style="display: flex; align-items: center; gap: 10px;"><span style="background: ${badgeColor}; color: white; width: 24px; height: 24px; border-radius: 50\%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${rank}</span><span style="font-weight: 600; font-size: 0.95rem; color: #333;">${name}</span></div><span style="font-weight: bold; color: #2ecc71; font-size: 0.95rem;">${points} نقطة</span></div>`;
       }
       stageHtml += `</div></div>`;
       lbContainer.innerHTML += stageHtml;
@@ -228,7 +239,7 @@ async function loadAttendanceHistory(classIds) {
         historyHtml += `
           <div style="display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border-color); background: #fff; border-radius: 4px; margin-bottom: 6px;">
             <span><strong>${studentsMap[att.studentId]}</strong></span>
-            <span>التاريخ: ${att.date || "غير محدد"} | الحالة: ${statusText}</span>
+            <span>التاريخ: ${att.date \vert{}\vert{} "غير محدد"} \vert{} الحالة: ${statusText}</span>
           </div>
         `;
       }

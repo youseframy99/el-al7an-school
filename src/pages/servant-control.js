@@ -101,6 +101,15 @@ onAuthStateChanged(auth, async (user) => {
 
       if (servantSnap.exists()) {
         const servantData = servantSnap.data();
+
+        // 🔒 الحراسة الأمنية الصارمة لمنع الطلاب من دخول لوحة الكنترول
+        const accountType = (servantData.accountType || "").toLowerCase();
+        if (accountType !== "servant") {
+          alert("🚫 عذراً، لا تملك صلاحية الوصول إلى لوحة تحكم الخدام!");
+          window.location.href = "/";
+          return;
+        }
+
         servantNameDisplay.textContent = `أ / ${servantData.name || servantData.fullName || "خادم الفصل"}`;
 
         if (servantData.isSupervisor === true) {
@@ -111,7 +120,9 @@ onAuthStateChanged(auth, async (user) => {
           }
         }
       } else {
-        servantNameDisplay.textContent = "خادم النظام";
+        alert("بيانات الحساب غير موجودة!");
+        window.location.href = "/login";
+        return;
       }
 
       await loadStudentsForAttendance();
@@ -122,7 +133,7 @@ onAuthStateChanged(auth, async (user) => {
       showError("حدث خطأ أثناء تحميل بيانات الكنترول.");
     }
   } else {
-    window.location.href = "/";
+    window.location.href = "/login";
   }
 });
 
