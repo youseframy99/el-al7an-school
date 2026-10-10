@@ -65,7 +65,7 @@ onAuthStateChanged(auth, async (user) => {
           await loadMultipleClassStudents(classIds);
           await loadMultipleLeaderboards(classIds);
           await loadStudentExamGrades(classIds);
-          await loadAttendanceHistory(classIds, classIds);
+          await loadAttendanceHistory(classIds);
         } else {
           const studentsContainer = document.getElementById("students-container");
           if (studentsContainer) studentsContainer.innerHTML = `<p style="text-align: center; padding: 20px; color: var(--text-muted);">لم يتم تحديد فصول لهذا الخادم.</p>`;
@@ -88,7 +88,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// عرض الطلاب لكل مرحلة (تم ضبط حساب المستوى ديناميكياً من النقاط)
+// عرض الطلاب لكل مرحلة
 async function loadMultipleClassStudents(classIds) {
   const mainContainer = document.getElementById("students-container");
   if (!mainContainer) return;
@@ -138,9 +138,8 @@ async function loadMultipleClassStudents(classIds) {
       for (const student of students) {
         const name = student.fullName || student.name || "طالب بدون اسم";
         const phone = student.phone || student.whatsapp || "غير مسجل";
-        const points = Number(student.points) || 0;
-        // حساب المستوى ديناميكياً بدقة (كل 30 نقطة مستوى جديد)
-        const level = Math.floor(points / 30) + 1;
+        const points = student.points || 0;
+        const level = student.level || Math.floor(points / 30) + 1;
 
         tableHtml += `
           <tr style="border-bottom: 1px solid var(--border-color); background: #fff;">
@@ -212,7 +211,6 @@ async function loadMultipleLeaderboards(classIds) {
   }
 }
 
-// عرض سجلات الحضور السابقة من المسار الفرعي الصحيح لكل طالب
 async function loadAttendanceHistory(classIds) {
   const container = document.getElementById("attendance-history-list");
   if (!container) return;
@@ -220,42 +218,32 @@ async function loadAttendanceHistory(classIds) {
   try {
     const userSnapshot = await getDocs(collection(db, "users"));
     let studentsMap = {};
-    const normalizedClassIds = classIds.map(c => c.toString().trim().toLowerCase());
-
     userSnapshot.forEach(docSnap => {
       const u = docSnap.data();
-      const uClass = (u.classId || u.grade || "").toString().trim().toLowerCase();
+      const uClass = u.classId || u.grade || "";
       const isApprovedStudent = (u.accountType === "student" || !u.accountType) && u.status === "approved";
-      
-      if (isApprovedStudent && normalizedClassIds.includes(uClass)) {
+      if (isApprovedStudent && classIds.some(c => c.toString().trim().toLowerCase() === uClass.toString().trim().toLowerCase())) {
         studentsMap[docSnap.id] = u.fullName || u.name || "طالب";
       }
     });
 
+    const attSnapshot = await getDocs(collection(db, "attendance"));
     let historyHtml = "";
     let recordsCount = 0;
 
-    // المرور على كل طالب وجلب سجل الحضور الخاص به من المسار الفرعي
-    for (const studentId of Object.keys(studentsMap)) {
-      const attSnapshot = await getDocs(collection(db, "students", studentId, "attendance"));
-      
-      attSnapshot.forEach(attDoc => {
-        const att = attDoc.data();
-        const isPresent = att.present === true || att.status === "present";
-        
-        // عرض السجلات الصالحة فقط
-        if (att.present !== undefined || att.status !== undefined) {
-          recordsCount++;
-          const statusText = isPresent ? '<span style="color: #27ae60; font-weight: bold;">حاضر ✅</span>' : '<span style="color: #e74c3c; font-weight: bold;">غائب ❌</span>';
-          historyHtml += `
-            <div style="display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border-color); background: #fff; border-radius: 4px; margin-bottom: 6px;">
-              <span><strong>${studentsMap[studentId]}</strong></span>
-              <span>التاريخ: ${att.date || attDoc.id || "غير محدد"} | الحالة: ${statusText}</span>
-            </div>
-          `;
-        }
-      });
-    }
+    attSnapshot.forEach(docSnap => {
+      const att = docSnap.data();
+      if (studentsMap[att.studentId]) {
+        recordsCount++;
+        const statusText = att.status === "present" ? '<span style="color: #27ae60; font-weight: bold;">حاضر ✅</span>' : '<span style="color: #e74c3c; font-weight: bold;">غائب ❌</span>';
+        historyHtml += `
+          <div style="display: flex; justify-content: space-between; padding: 8px 12px; border-bottom: 1px solid var(--border-color); background: #fff; border-radius: 4px; margin-bottom: 6px;">
+            <span><strong>${studentsMap[att.studentId]}</strong></span>
+            <span>التاريخ: ${att.date || "غير محدد"} | الحالة: ${statusText}</span>
+          </div>
+        `;
+      }
+    });
 
     container.innerHTML = recordsCount > 0 ? historyHtml : `<p style="text-align: center; color: var(--text-muted);">لا توجد سجلات حضور سابقة.</p>`;
   } catch (err) {
@@ -363,7 +351,7 @@ async function loadStudentExamGrades(classIds) {
     tableHtml += `</tbody></table></div>`;
     container.innerHTML = tableHtml;
 
-  } chart (err) {
+  } catch (err) {
     console.error("خطأ في جلب درجات الامتحانات:", err);
     container.innerHTML = `<p style="text-align: center; color: #e74c3c; padding: 20px;">تعذر تحميل درجات الامتحانات.</p>`;
   }
