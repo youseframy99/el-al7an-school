@@ -261,5 +261,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // إزالة العنصر نهائياً بسرعة وسلاسة ليظهر الفورم فوراً
   setTimeout(() => {
     overlay.remove();
-  }, 9400);
+  }, 9000);
 });
