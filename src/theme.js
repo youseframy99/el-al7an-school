@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
       left: 0;
       width: 100vw;
       height: 100vh;
-      /* خلفية سماوية بتدرج ناعم وسحب */
+      /* خلفية سماوية هادئة مع سحاب */
       background: linear-gradient(180deg, #5b9bd5 0%, #87ceeb 50%, #b0e0e6 100%);
       z-index: 999999;
       display: flex;
@@ -50,10 +50,10 @@ document.addEventListener("DOMContentLoaded", () => {
       align-items: center;
       perspective: 1200px;
       overflow: hidden;
-      transition: opacity 0.8s ease;
+      transition: opacity 1.2s ease;
     }
 
-    /* تأثيرات السحاب المتحرك */
+    /* تأثيرات السحاب المتحرك ببطء */
     .church-door-overlay-v3::before,
     .church-door-overlay-v3::after {
       content: '';
@@ -62,37 +62,77 @@ document.addEventListener("DOMContentLoaded", () => {
       height: 200%;
       top: -50%;
       left: -50%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 10%, transparent 60%);
-      animation: cloudMove 25s linear infinite alternate;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 10%, transparent 60%);
+      animation: cloudMove 35s linear infinite alternate;
       pointer-events: none;
     }
     .church-door-overlay-v3::after {
-      animation-duration: 35s;
+      animation-duration: 45s;
       animation-direction: alternate-reverse;
       opacity: 0.7;
     }
 
     @keyframes cloudMove {
       0% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(5%, 3%) scale(1.1); }
-      100% { transform: translate(-4%, -2%) scale(0.95); }
+      50% { transform: translate(4%, 2%) scale(1.08); }
+      100% { transform: translate(-3%, -2%) scale(0.95); }
+    }
+
+    /* حاوية القديسين (3 شمال و 3 يمين) */
+    .saints-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 40px;
+      pointer-events: none;
+      opacity: 0;
+      animation: saintsFadeIn 4s ease forwards 2s;
+      z-index: 2;
+    }
+
+    @keyframes saintsFadeIn {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* مجموعة القديسين على الجانب الواحد */
+    .saints-group-left, .saints-group-right {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+
+    /* تصميم شكل أيقونة القديس الواقفة */
+    .saint-figure {
+      width: 110px;
+      height: 380px;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center bottom;
+      filter: drop-shadow(0 0 20px rgba(255, 248, 220, 0.8));
+      transition: transform 0.5s ease;
     }
 
     .cinematic-door-box {
-      width: 380px;
-      height: 580px;
+      width: 360px;
+      height: 540px;
       display: flex;
       position: relative;
       transform-style: preserve-3d;
       box-shadow: 0 0 70px 30px rgba(212, 175, 55, 0.5), inset 0 0 50px rgba(255, 215, 0, 0.3);
       border-radius: 6px;
-      transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s ease;
-      animation: doorZoomIn 5.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      transition: transform 2s cubic-bezier(0.25, 1, 0.5, 1), opacity 1.5s ease;
+      /* تم إبطاء مدة الزوم لتعطي فرصة للمشاهدة (8 ثانية) */
+      animation: doorZoomIn 8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+      z-index: 3;
     }
 
     @keyframes doorZoomIn {
-      0% { transform: scale(0.05) translateZ(-3000px); opacity: 0; }
-      15% { opacity: 1; }
+      0% { transform: scale(0.05) translateZ(-3500px); opacity: 0; }
+      20% { opacity: 1; }
       90% { transform: scale(1) translateZ(0); opacity: 1; }
       100% { transform: scale(1.02) translateZ(20px); opacity: 1; }
     }
@@ -100,12 +140,11 @@ document.addEventListener("DOMContentLoaded", () => {
     .door-left-panel, .door-right-panel {
       width: 50%;
       height: 100%;
-      /* خلفية ذهبية مزخرفة للأبواب */
       background: linear-gradient(135deg, #d4af37 0%, #aa7c11 50%, #7a5800 100%);
       border: 4px solid #fff8dc;
       position: relative;
       box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.5);
-      transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 1.8s cubic-bezier(0.4, 0, 0.2, 1);
       transform-style: preserve-3d;
     }
 
@@ -132,44 +171,10 @@ document.addEventListener("DOMContentLoaded", () => {
       border-radius: 6px;
       box-shadow: 0 0 20px rgba(255, 248, 220, 1);
     }
-    .handle-left-side { right: 120px; }
-    .handle-right-side { left: 120px; }
+    .handle-left-side { right: 110px; }
+    .handle-right-side { left: 110px; }
 
-    /* حاوية الصور على الجانبين */
-    .saints-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: space-between;
-      pointer-events: none;
-      opacity: 0;
-      animation: saintsFadeIn 3s ease forwards 4.5s;
-    }
-
-    @keyframes saintsFadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    .saints-left, .saints-right {
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      padding: 20px;
-      align-items: center;
-    }
-
-    .saint-icon {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 3px solid #fff8dc;
-      box-shadow: 0 0 20px rgba(255, 248, 220, 0.8);
-      background-size: cover;
-      background-position: center;
-    }
-
+    /* حركة فتح البابين للداخل ببطء وفخامة */
     .church-door-overlay-v3.open .door-left-panel {
       transform: rotateY(95deg);
       transform-origin: right;
@@ -189,30 +194,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.createElement("div");
   overlay.className = "church-door-overlay-v3";
   
-  // إضافة حاوية القديسين
+  // حاوية الـ 6 قديسين
   const saintsContainer = document.createElement("div");
   saintsContainer.className = "saints-container";
 
-  // الجانب الأيسر
-  const saintsLeft = document.createElement("div");
-  saintsLeft.className = "saints-left";
-  saintsLeft.innerHTML = `
-    <div class="saint-icon" style="background-image: url('assets/images/saint1.png');"></div>
-    <div class="saint-icon" style="background-image: url('assets/images/saint2.png');"></div>
-    <div class="saint-icon" style="background-image: url('assets/images/saint3.png');"></div>
+  // المجموعة اليسرى (3 قديسين)
+  const leftGroup = document.createElement("div");
+  leftGroup.className = "saints-group-left";
+  leftGroup.innerHTML = `
+    <div class="saint-figure" style="background-image: url('assets/images/saint1.png');"></div>
+    <div class="saint-figure" style="background-image: url('assets/images/saint2.png');"></div>
+    <div class="saint-figure" style="background-image: url('assets/images/saint3.png');"></div>
   `;
 
-  // الجانب الأيمن
-  const saintsRight = document.createElement("div");
-  saintsRight.className = "saints-right";
-  saintsRight.innerHTML = `
-    <div class="saint-icon" style="background-image: url('assets/images/saint4.png');"></div>
-    <div class="saint-icon" style="background-image: url('assets/images/saint5.png');"></div>
-    <div class="saint-icon" style="background-image: url('assets/images/saint6.png');"></div>
+  // المجموعة اليمنى (3 قديسين)
+  const rightGroup = document.createElement("div");
+  rightGroup.className = "saints-group-right";
+  rightGroup.innerHTML = `
+    <div class="saint-figure" style="background-image: url('assets/images/saint4.png');"></div>
+    <div class="saint-figure" style="background-image: url('assets/images/saint5.png');"></div>
+    <div class="saint-figure" style="background-image: url('assets/images/saint6.png');"></div>
   `;
 
-  saintsContainer.appendChild(saintsLeft);
-  saintsContainer.appendChild(saintsRight);
+  saintsContainer.appendChild(leftGroup);
+  saintsContainer.appendChild(rightGroup);
   overlay.appendChild(saintsContainer);
 
   const container = document.createElement("div");
@@ -235,15 +240,16 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.appendChild(container);
   document.body.appendChild(overlay);
 
+  // تم زيادة الأوقات لإبطاء الحركة وإعطاء فرصة كاملة لرؤية كل القديسين
   setTimeout(() => {
     overlay.classList.add("open");
-  }, 5300);
+  }, 7500); // فتح الباب بعد 7.5 ثانية
 
   setTimeout(() => {
     overlay.classList.add("fade-out");
-  }, 6200);
+  }, 9500); // بدء التلاشي بعد 9.5 ثانية
 
   setTimeout(() => {
     overlay.remove();
-  }, 7000);
+  }, 10700); // إزالة العنصر نهائياً بعد 10.7 ثانية
 });
