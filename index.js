@@ -2,13 +2,13 @@ import { db, auth } from './src/config/firebase-config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { doc, getDoc, collection, query, where, getDocs, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-// دالة حساب المستوى ديناميكياً (كل 30 نقطة مستوى جديد)[cite: 10]
+// دالة حساب المستوى ديناميكياً (كل 30 نقطة مستوى جديد)[cite: 8]
 function calculateLevel(points) {
   const pts = Number(points) || 0;
   return Math.floor(pts / 30) + 1; 
 }
 
-// دالة لتطبيق الإعدادات والألوان المخصصة محلياً (لهذا المخدوم فقط)[cite: 10]
+// دالة لتطبيق الإعدادات والألوان المخصصة محلياً (لهذا المخدوم فقط)[cite: 8]
 function applyUserPreferences() {
   const savedFontSize = localStorage.getItem('user_font_size');
   const savedBgColor = localStorage.getItem('user_custom_bg');
@@ -62,7 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // عناصر نافذة الإعدادات (Modal) ومربعات الألوان[cite: 10]
+  // عناصر نافذة الإعدادات (Modal) ومربعات الألوان[cite: 8]
   const settingsModal = document.getElementById("settings-modal");
   const settingsOpenBtn = document.getElementById("settings-open-btn");
   const closeSettingsBtn = document.getElementById("close-settings");
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // تطبيق الألوان فوراً عند تحريك المربع أو اختيار الدرجة[cite: 10]
+  // تطبيق الألوان فوراً عند تحريك المربع أو اختيار الدرجة[cite: 8]
   if (bgColorPicker) {
     bgColorPicker.addEventListener("input", (e) => {
       const color = e.target.value;
@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // اختيار حجم الخط[cite: 10]
+  // اختيار حجم الخط[cite: 8]
   const fontSizeBtns = document.querySelectorAll(".font-size-btn");
   fontSizeBtns.forEach(btn => {
     btn.addEventListener("click", () => {
@@ -119,7 +119,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // زر إعادة الضبط للافتراضي (Reset to Default)[cite: 10]
+  // زر إعادة الضبط للافتراضي (Reset to Default)[cite: 8]
   if (resetSettingsBtn) {
     resetSettingsBtn.addEventListener("click", () => {
       localStorage.removeItem("user_font_size");
@@ -192,7 +192,7 @@ async function loadStudentDashboard(user) {
       classId = studentData.classId || studentData.grade || "";
 
       const points = Number(studentData.points) || 0;
-      // حساب المستوى ديناميكياً بدقة (كل 30 نقطة مستوى جديد)[cite: 10]
+      // حساب المستوى ديناميكياً بدقة (كل 30 نقطة مستوى جديد)[cite: 8]
       const currentLevel = calculateLevel(points);
 
       document.getElementById("user-level").innerHTML = `<i class="fa-solid fa-crown"></i> المستوى: ${currentLevel}`;
@@ -232,22 +232,27 @@ async function loadStudentDashboard(user) {
         }
       }
 
-      // جلب سجل الحضور والغياب مع دعم الاحتمالين (present أو status) من المسار الفرعي للطالب[cite: 10]
+      // جلب سجل الحضور والغياب مع فلترة واستبعاد الأيام الفارغة التي حُفظت بالخطأ
       const attendanceCollRef = collection(db, "students", user.uid, "attendance");
       const attSnap = await getDocs(attendanceCollRef);
       
-      let totalClasses = 0;
+      let totalValidClasses = 0;
       let attendedClasses = 0;
       
       attSnap.forEach(docSnap => {
         const attData = docSnap.data();
-        totalClasses++;
-        if (attData.present === true || attData.status === "present") {
-          attendedClasses++;
+        const isPresent = attData.present === true || attData.status === "present";
+        
+        // احتساب الاجتماعات الصالحة فقط التي تم تسجيل حضور أو غياب فعلي فيها
+        if (attData.present !== undefined || attData.status !== undefined) {
+          totalValidClasses++;
+          if (isPresent) {
+            attendedClasses++;
+          }
         }
       });
 
-      let attendanceRate = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
+      let attendanceRate = totalValidClasses > 0 ? Math.round((attendedClasses / totalValidClasses) * 100) : 0;
       document.getElementById("user-attendance").innerText = `${attendanceRate}%`;
     }
 
