@@ -92,12 +92,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const sId = document.getElementById("edit-student-id").value;
       const newName = document.getElementById("edit-student-name").value.trim();
       const newPhone = document.getElementById("edit-student-phone").value.trim();
+      const newParentPhone = document.getElementById("edit-student-parent-phone")?.value.trim() || "";
       const newGrade = document.getElementById("edit-student-grade").value;
 
       if (!sId) return;
 
       if (!newName) {
-        showError("يجيب كتابة اسم الطالب.");
+        showError("يجب كتابة اسم الطالب.");
         return;
       }
 
@@ -112,11 +113,12 @@ document.addEventListener("DOMContentLoaded", () => {
           phone: newPhone,
           phoneNumber: newPhone,
           whatsapp: newPhone,
+          parentPhone: newParentPhone, // تحديث رقم ولي الأمر
           classId: newGrade,
           grade: newGrade
         });
 
-        showSuccess("تم تحديث بيانات الطالب والمرحلة بنجاح! ✅");
+        showSuccess("تم تحديث بيانات الطالب ورقم ولي الأمر والمرحلة بنجاح! ✅");
         editModal.style.display = "none";
         await loadServantStudentsManagement(); // إعادة تحميل الجدول
       } catch (error) {
@@ -204,7 +206,7 @@ async function loadServantStudentsManagement() {
         <thead>
           <tr style="border-bottom: 2px solid var(--border-color); background: var(--bg-color);">
             <th style="padding: 10px;">الاسم</th>
-            <th style="padding: 10px;">رقم التليفون</th>
+            <th style="padding: 10px;">رقم ولي الأمر</th>
             <th style="padding: 10px;">المرحلة الدراسية</th>
             <th style="padding: 10px; text-align: center;">الإجراءات</th>
           </tr>
@@ -222,15 +224,16 @@ async function loadServantStudentsManagement() {
         const sId = docSnap.id;
         const name = data.fullName || data.name || "مخدوم بدون اسم";
         const phone = data.phone || data.phoneNumber || data.whatsapp || "غير مسجل";
+        const parentPhone = data.parentPhone || data.guardianPhone || data.parentNumber || "غير مسجل";
         const grade = data.classId || data.grade || "غير محدد";
 
         studentsHtml += `
           <tr style="border-bottom: 1px solid var(--border-color);">
             <td style="padding: 10px; font-weight: 600;">${name}</td>
-            <td style="padding: 10px; color: var(--text-muted); direction: ltr; text-align: right;">${phone}</td>
+            <td style="padding: 10px; color: var(--text-muted); direction: ltr; text-align: right;">${parentPhone}</td>
             <td style="padding: 10px;"><span style="background: var(--bg-color); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-color); color: #2980b9;">${grade}</span></td>
             <td style="padding: 10px; text-align: center;">
-              <button onclick="window.openEditStudentModal('${sId}', '${name.replace(/'/g, "\\'")}', '${phone === 'غير مسجل' ? '' : phone}', '${grade}')" style="background: #2980b9; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; font-weight: bold;" title="تعديل"><i class="fa-solid fa-pen"></i> تعديل</button>
+              <button onclick="window.openEditStudentModal('${sId}', '${name.replace(/'/g, "\\'")}', '${phone === 'غير مسجل' ? '' : phone}', '${parentPhone === 'غير مسجل' ? '' : parentPhone}', '${grade}')" style="background: #2980b9; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; font-weight: bold;" title="تعديل"><i class="fa-solid fa-pen"></i> تعديل</button>
               <button onclick="window.deleteStudentAccount('${sId}', '${name.replace(/'/g, "\\'")}')" style="background: #e74c3c; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" title="حذف"><i class="fa-solid fa-trash"></i> حذف</button>
             </td>
           </tr>
@@ -251,11 +254,16 @@ async function loadServantStudentsManagement() {
   }
 }
 
-// دالة فتح نافذة التعديل وتعبئة البيانات وإسناد المرحلة للقائمة المنسدلة
-window.openEditStudentModal = function(id, name, phone, grade) {
+// دالة فتح نافذة التعديل وتعبئة البيانات (بما فيها رقم ولي الأمر) وإسناد المرحلة للقائمة المنسدلة
+window.openEditStudentModal = function(id, name, phone, parentPhone, grade) {
   document.getElementById("edit-student-id").value = id;
   document.getElementById("edit-student-name").value = name;
   document.getElementById("edit-student-phone").value = phone;
+  
+  const parentPhoneInput = document.getElementById("edit-student-parent-phone");
+  if (parentPhoneInput) {
+    parentPhoneInput.value = parentPhone;
+  }
   
   const gradeSelect = document.getElementById("edit-student-grade");
   if (gradeSelect) {
@@ -302,7 +310,7 @@ async function loadPendingStudents() {
           <thead>
             <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted);">
               <th style="padding: 10px;">اسم الطالب</th>
-              <th style="padding: 10px;">رقم الواتساب</th>
+              <th style="padding: 10px;">رقم ولي الأمر</th>
               <th style="padding: 10px;">المرحلة</th>
               <th style="padding: 10px;">البريد الإلكتروني</th>
               <th style="padding: 10px; text-align: center;">الإجراءات</th>
@@ -315,14 +323,14 @@ async function loadPendingStudents() {
       const student = docSnap.data();
       const studentId = docSnap.id;
       const name = student.fullName || student.name || "طالب بدون اسم";
-      const phone = student.whatsapp || student.phone || "غير مسجل";
+      const parentPhone = student.parentPhone || student.whatsapp || student.phone || "غير مسجل";
       const grade = student.grade || student.classId || "غير محدد";
       const email = student.email || "غير مسجل";
 
       html += `
         <tr id="pending-row-${studentId}" style="border-bottom: 1px solid var(--border-color); background: var(--card-bg);">
           <td style="padding: 10px; font-weight: 600; color: var(--text-color);">${name}</td>
-          <td style="padding: 10px; direction: ltr; text-align: right; color: var(--text-color);">${phone}</td>
+          <td style="padding: 10px; direction: ltr; text-align: right; color: var(--text-color);">${parentPhone}</td>
           <td style="padding: 10px; color: #2980b9;">${grade}</td>
           <td style="padding: 10px; color: var(--text-muted);">${email}</td>
           <td style="padding: 10px; text-align: center;">
