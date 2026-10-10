@@ -233,7 +233,6 @@ async function loadStudentDashboard(user) {
       }
 
       // جلب نسبة الحضور بالطريقة الصحيحة من المسار الفرعي للطالب
-      // جلب سجل الحضور والغياب مع دعم الاحتمالين (present أو status)
       const attendanceCollRef = collection(db, "students", user.uid, "attendance");
       const attSnap = await getDocs(attendanceCollRef);
       
@@ -243,13 +242,14 @@ async function loadStudentDashboard(user) {
       attSnap.forEach(docSnap => {
         const attData = docSnap.data();
         totalClasses++;
-        if (attData.present === true || attData.status === "present") {
+        if (attData.present === true) {
           attendedClasses++;
         }
       });
 
       let attendanceRate = totalClasses > 0 ? Math.round((attendedClasses / totalClasses) * 100) : 0;
       document.getElementById("user-attendance").innerText = `${attendanceRate}%`;
+    }
 
     const finalName = fullName || user.displayName || (user.email ? user.email.split('@')[0] : "مخدوم الكنيسة");
     if (nameDisplay) nameDisplay.innerText = finalName;
