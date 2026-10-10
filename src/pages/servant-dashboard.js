@@ -48,7 +48,7 @@ onAuthStateChanged(auth, async (user) => {
       if (userSnap.exists()) {
         const userData = userSnap.data();
 
-        // 🔒 الحراسة الأمنية الصارمة لمنع الطلاب من دخول لوحة الخادم
+        // 🔒 الحراسة الأمنية الصارمة لمنع الطلاب من دخول لوحة الخادم[cite: 11]
         const accountType = (userData.accountType || "").toLowerCase();
         if (accountType !== "servant") {
           alert("🚫 عذراً، لا تملك صلاحية الوصول إلى هذه الصفحة!");
@@ -88,7 +88,7 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-// عرض الطلاب لكل مرحلة (تم ضبط حساب المستوى ديناميكياً من النقاط)
+// عرض الطلاب لكل مرحلة (تم تحديث عرض رقم ولي الأمر والمستوى الديناميكي)
 async function loadMultipleClassStudents(classIds) {
   const mainContainer = document.getElementById("students-container");
   if (!mainContainer) return;
@@ -127,7 +127,7 @@ async function loadMultipleClassStudents(classIds) {
             <thead>
               <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-muted);">
                 <th style="padding: 10px;">اسم المخدوم</th>
-                <th style="padding: 10px;">رقم الهاتف</th>
+                <th style="padding: 10px;">رقم ولي الأمر</th>
                 <th style="padding: 10px;">المستوى</th>
                 <th style="padding: 10px;">النقاط</th>
               </tr>
@@ -137,15 +137,16 @@ async function loadMultipleClassStudents(classIds) {
 
       for (const student of students) {
         const name = student.fullName || student.name || "طالب بدون اسم";
-        const phone = student.phone || student.whatsapp || "غير مسجل";
+        // قراءة رقم ولي الأمر أولاً بدلاً من رقم الطالب الشخصي[cite: 11]
+        const parentPhone = student.parentPhone || student.guardianPhone || student.parentNumber || student.whatsapp || student.phone || "غير مسجل";
         const points = Number(student.points) || 0;
-        // حساب المستوى ديناميكياً بدقة (كل 30 نقطة مستوى جديد)
+        // حساب المستوى ديناميكياً بدقة (كل 30 نقطة مستوى جديد)[cite: 11]
         const level = Math.floor(points / 30) + 1;
 
         tableHtml += `
           <tr style="border-bottom: 1px solid var(--border-color); background: #fff;">
             <td style="padding: 10px; font-weight: 600; color: #333;">${name}</td>
-            <td style="padding: 10px; direction: ltr; text-align: right; color: #333;">${phone}</td>
+            <td style="padding: 10px; direction: ltr; text-align: right; color: #333;">${parentPhone}</td>
             <td style="padding: 10px; color: #f39c12;"><i class="fa-solid fa-crown"></i> مستوى ${level}</td>
             <td style="padding: 10px; font-weight: bold; color: #27ae60;">${points} نقطة</td>
           </tr>
@@ -212,7 +213,7 @@ async function loadMultipleLeaderboards(classIds) {
   }
 }
 
-// عرض سجلات الحضور السابقة من المسار الفرعي الصحيح لكل طالب
+// عرض سجلات الحضور السابقة من المسار الفرعي الصحيح لكل طالب[cite: 11]
 async function loadAttendanceHistory(classIds) {
   const container = document.getElementById("attendance-history-list");
   if (!container) return;

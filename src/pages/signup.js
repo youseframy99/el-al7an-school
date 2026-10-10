@@ -74,9 +74,13 @@ form.addEventListener("submit", async (e) => {
 
   if (type === "student") {
     const grade = document.getElementById("studentGrade").value;
+    const parentPhone = document.getElementById("parentPhone").value.trim();
+    
     if (!grade) return showError("من فضلك اختر المرحلة الدراسية");
+    
     profileData.grade = grade;
     profileData.classId = grade;
+    profileData.parentPhone = parentPhone; // حفظ رقم ولي الأمر
     profileData.points = 0;
     profileData.level = 1;
     profileData.attendanceRate = 0;
