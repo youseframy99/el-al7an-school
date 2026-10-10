@@ -215,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="saint-figure" style="background-image: url('assets/images/saint5.png');"></div>
     <div class="saint-figure" style="background-image: url('assets/images/saint6.png');"></div>
   `;
-
+/*hello*/
   saintsContainer.appendChild(leftGroup);
   saintsContainer.appendChild(rightGroup);
   overlay.appendChild(saintsContainer);
