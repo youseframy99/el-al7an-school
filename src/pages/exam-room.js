@@ -8,6 +8,95 @@ const examId = urlParams.get('examId');
 let currentStudent = null;
 let examData = null;
 
+// دالة لتطبيق الإعدادات المخزنة محلياً لهذا المخدوم فقط
+function applyUserPreferences() {
+  const savedFontSize = localStorage.getItem('user_font_size');
+  const savedThemeColor = localStorage.getItem('user_theme_color');
+
+  if (savedFontSize) {
+    document.body.style.fontSize = savedFontSize;
+  } else {
+    document.body.style.fontSize = "";
+  }
+
+  if (savedThemeColor === 'dark') {
+    document.body.classList.add("dark-mode");
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
+  } else if (savedThemeColor === 'sepia') {
+    document.body.classList.remove("dark-mode");
+    document.body.style.backgroundColor = "#fbf0d9";
+    document.body.style.color = "#5c4033";
+  } else if (savedThemeColor === 'light') {
+    document.body.classList.remove("dark-mode");
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
+  } else {
+    document.body.classList.remove("dark-mode");
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  applyUserPreferences();
+
+  const settingsModal = document.getElementById("settings-modal");
+  const settingsOpenBtn = document.getElementById("settings-open-btn");
+  const closeSettingsBtn = document.getElementById("close-settings");
+  const saveSettingsBtn = document.getElementById("save-settings");
+  const resetSettingsBtn = document.getElementById("reset-settings");
+
+  if (settingsOpenBtn && settingsModal) {
+    settingsOpenBtn.addEventListener("click", () => {
+      settingsModal.style.display = "flex";
+    });
+  }
+
+  if (closeSettingsBtn && settingsModal) {
+    closeSettingsBtn.addEventListener("click", () => {
+      settingsModal.style.display = "none";
+    });
+  }
+
+  const fontSizeBtns = document.querySelectorAll(".font-size-btn");
+  fontSizeBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      fontSizeBtns.forEach(b => b.style.borderColor = "#ccc");
+      btn.style.borderColor = "var(--color-primary, #2980b9)";
+      const size = btn.getAttribute("data-size");
+      document.body.style.fontSize = size;
+      localStorage.setItem("user_font_size", size);
+    });
+  });
+
+  const themeColorBtns = document.querySelectorAll(".theme-color-btn");
+  themeColorBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const theme = btn.getAttribute("data-theme");
+      localStorage.setItem("user_theme_color", theme);
+      applyUserPreferences();
+    });
+  });
+
+  // زر إعادة الضبط للافتراضي (Reset to Default)
+  if (resetSettingsBtn) {
+    resetSettingsBtn.addEventListener("click", () => {
+      localStorage.removeItem("user_font_size");
+      localStorage.removeItem("user_theme_color");
+      localStorage.removeItem("theme");
+      applyUserPreferences();
+      settingsModal.style.display = "none";
+    });
+  }
+
+  if (saveSettingsBtn && settingsModal) {
+    saveSettingsBtn.addEventListener("click", () => {
+      settingsModal.style.display = "none";
+    });
+  }
+});
+
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     currentStudent = user;
@@ -24,7 +113,6 @@ onAuthStateChanged(auth, async (user) => {
 
 async function loadExamDetails(id) {
   try {
-    // 1. الحماية: التحقق هل الطالب قام بتسليم هذا الامتحان من قبل لمنع التكرار وجمع النقاط وهمياً[cite: 20]
     const resultDocId = `${id}_${currentStudent.uid}`;
     const existingResultSnap = await getDoc(doc(db, "examResults", resultDocId));
 
@@ -42,7 +130,6 @@ async function loadExamDetails(id) {
       return;
     }
 
-    // 2. جلب تفاصيل الامتحان لو لم يقم بحله من قبل[cite: 20]
     const examDocRef = doc(db, "quizzes", id);
     const snap = await getDoc(examDocRef);
 
@@ -65,7 +152,6 @@ async function loadExamDetails(id) {
   }
 }
 
-// دالة خلط عشوائي (Shuffle) عامة لخلط الأسئلة والخيارات[cite: 20]
 function shuffleArray(array) {
   let currentIndex = array.length, randomIndex;
   while (currentIndex !== 0) {
@@ -83,12 +169,10 @@ function renderQuestions(questions) {
     return;
   }
 
-  // عمل نسخة من الأسئلة وخلطها عشوائياً (Shuffle للأسئلة)[cite: 20]
   let shuffledQuestions = shuffleArray([...questions]);
 
   let html = "";
   shuffledQuestions.forEach((q, actualIndex) => {
-    // إيجاد الفهرس الحقيقي للسؤال في المصفوفة الأصلية عشان تصحيح الإجابات يفضل مظبوط 100%[cite: 20]
     const originalIndex = questions.indexOf(q);
     const qText = q.text || q.questionText || "سؤال بدون نص";
     
@@ -96,13 +180,11 @@ function renderQuestions(questions) {
     html += `<p style="font-weight: bold; margin-bottom: 10px;">س${actualIndex + 1}: ${qText} <span style="font-size: 0.8rem; color: var(--color-text-muted);">(${q.score || 1} درجة)</span></p>`;
 
     if (q.type === "mcq") {
-      // تجميع الخيارات وضمان وجود الإجابة الصحيحة ضمنها لمنع اختفائها[cite: 20]
       let allOptions = q.options ? [...q.options] : [];
       if (q.correctAnswer && !allOptions.includes(q.correctAnswer)) {
         allOptions.push(q.correctAnswer);
       }
 
-      // خلط الاختيارات عشوائياً لكل سؤال (Shuffle للخيارات)[cite: 20]
       let shuffledOptions = shuffleArray(allOptions);
 
       shuffledOptions.forEach((opt) => {
@@ -114,7 +196,6 @@ function renderQuestions(questions) {
         `;
       });
     } else {
-      // الأسئلة المقالية[cite: 20]
       html += `
         <textarea name="q_${originalIndex}" rows="3" placeholder="اكتب إجابتك هنا..." required style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); font-family: inherit;"></textarea>
       `;
@@ -124,7 +205,6 @@ function renderQuestions(questions) {
   container.innerHTML = html;
 }
 
-// دالة الاحتفال العظمى (ألعاب نارية + صوت)
 function triggerCelebration() {
   const celebrationAudio = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
   celebrationAudio.volume = 0.8;
@@ -140,7 +220,6 @@ function triggerCelebration() {
   }
 }
 
-// دالة إطلاق الصواريخ والألعاب النارية المتكررة
 function runFireworks() {
   const duration = 3.5 * 1000;
   const animationEnd = Date.now() + duration;
@@ -161,7 +240,6 @@ function runFireworks() {
   }, 250);
 }
 
-// معالجة تسليم الامتحان وحساب درجات الـ MCQ تلقائياً وتحديث نقاط الطالب[cite: 20]
 document.getElementById("exam-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   if (!examData || !currentStudent) return;
@@ -188,7 +266,6 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
         const selectedVal = selected ? selected.value : ""; 
         studentAnswers[index] = selectedVal;
         
-        // التصحيح الآلي بمطابقة النص المختار مع الإجابة الصحيحة المخزنة[cite: 20]
         const correctAns = q.correctAnswer || q.correctOption || "";
         if (selectedVal.trim() === correctAns.trim()) {
           mcqScore += (q.score || 1);
@@ -200,16 +277,14 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
       }
     });
 
-    // 1. تحديث نقاط الطالب في كولكشن users (تتم فقط إذا كان الامتحان يخلو تماماً من الأسئلة المقالية لمنع التكرار)[cite: 20]
     if (!hasEssay) {
       const currentPoints = Number(studentData.points || studentData.score || 0);
       const newTotalPoints = currentPoints + mcqScore;
-      await setDoc(studentDocRef, {
+      await doc(studentDocRef, {
         points: newTotalPoints
-      }, { merge: true });
+      });
     }
 
-    // 2. حفظ النتيجة في كولكشن examResults[cite: 20]
     const resultData = {
       examId: examId,
       examTitle: examData.title || "امتحان أسبوعي",
@@ -226,7 +301,6 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
     const resultDocId = `${examId}_${currentStudent.uid}`;
     await setDoc(doc(db, "examResults", resultDocId), resultData);
 
-    // إخفاء النموذج وعرض رسالة النجاح[cite: 20]
     document.getElementById("exam-form").style.display = "none";
     document.getElementById("score-summary").innerText = hasEssay 
       ? `تم تسليم إجاباتك بنجاح! درجة الاختياري المرصودة: ${mcqScore} (في انتظار تصحيح الأسئلة المقالية وإضافة المجموع النهائي)`
@@ -234,7 +308,6 @@ document.getElementById("exam-form").addEventListener("submit", async (e) => {
     
     document.getElementById("exam-result-box").style.display = "block";
 
-    // 🚀 تشغيل بهجة الاحتفال والألعاب النارية والصوت فور التسليم!
     triggerCelebration();
 
   } catch (err) {

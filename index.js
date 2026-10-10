@@ -7,12 +7,43 @@ function calculateLevel(points) {
   return Math.floor(pts / 30) + 1; 
 }
 
-// تفعيل الثيم (الوضع المظلم/الفاتح) وزر تسجيل الخروج أول ما الصفحة تفتح
+// دالة لتطبيق الإعدادات المخزنة محلياً (لهذا المخدوم فقط)
+function applyUserPreferences() {
+  const savedFontSize = localStorage.getItem('user_font_size');
+  const savedThemeColor = localStorage.getItem('user_theme_color');
+
+  if (savedFontSize) {
+    document.body.style.fontSize = savedFontSize;
+  } else {
+    document.body.style.fontSize = "";
+  }
+
+  if (savedThemeColor === 'dark') {
+    document.body.classList.add("dark-mode");
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
+  } else if (savedThemeColor === 'sepia') {
+    document.body.classList.remove("dark-mode");
+    document.body.style.backgroundColor = "#fbf0d9";
+    document.body.style.color = "#5c4033";
+  } else if (savedThemeColor === 'light') {
+    document.body.classList.remove("dark-mode");
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
+  } else {
+    document.body.classList.remove("dark-mode");
+    document.body.style.backgroundColor = "";
+    document.body.style.color = "";
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+  applyUserPreferences();
+
   const themeToggleBtn = document.getElementById("theme-toggle");
   const currentTheme = localStorage.getItem("theme");
 
-  if (currentTheme === "dark") {
+  if (currentTheme === "dark" && !localStorage.getItem('user_theme_color')) {
     document.body.classList.add("dark-mode");
     if (themeToggleBtn) themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
   }
@@ -28,6 +59,63 @@ document.addEventListener("DOMContentLoaded", () => {
         themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
       }
       localStorage.setItem("theme", theme);
+      localStorage.setItem("user_theme_color", theme);
+    });
+  }
+
+  // منطق نافذة الإعدادات (Modal)
+  const settingsModal = document.getElementById("settings-modal");
+  const settingsOpenBtn = document.getElementById("settings-open-btn");
+  const closeSettingsBtn = document.getElementById("close-settings");
+  const saveSettingsBtn = document.getElementById("save-settings");
+  const resetSettingsBtn = document.getElementById("reset-settings");
+
+  if (settingsOpenBtn && settingsModal) {
+    settingsOpenBtn.addEventListener("click", () => {
+      settingsModal.style.display = "flex";
+    });
+  }
+
+  if (closeSettingsBtn && settingsModal) {
+    closeSettingsBtn.addEventListener("click", () => {
+      settingsModal.style.display = "none";
+    });
+  }
+
+  const fontSizeBtns = document.querySelectorAll(".font-size-btn");
+  fontSizeBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      fontSizeBtns.forEach(b => b.style.borderColor = "#ccc");
+      btn.style.borderColor = "var(--color-primary, #2980b9)";
+      const size = btn.getAttribute("data-size");
+      document.body.style.fontSize = size;
+      localStorage.setItem("user_font_size", size);
+    });
+  });
+
+  const themeColorBtns = document.querySelectorAll(".theme-color-btn");
+  themeColorBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const theme = btn.getAttribute("data-theme");
+      localStorage.setItem("user_theme_color", theme);
+      applyUserPreferences();
+    });
+  });
+
+  // زر إعادة الضبط للافتراضي (Reset to Default)
+  if (resetSettingsBtn) {
+    resetSettingsBtn.addEventListener("click", () => {
+      localStorage.removeItem("user_font_size");
+      localStorage.removeItem("user_theme_color");
+      localStorage.removeItem("theme");
+      applyUserPreferences();
+      settingsModal.style.display = "none";
+    });
+  }
+
+  if (saveSettingsBtn && settingsModal) {
+    saveSettingsBtn.addEventListener("click", () => {
+      settingsModal.style.display = "none";
     });
   }
 
