@@ -50,7 +50,8 @@ document.addEventListener("DOMContentLoaded", () => {
       align-items: center;
       perspective: 1200px;
       overflow: hidden;
-      transition: opacity 1.2s ease;
+      /* سرعنا وقت التلاشي ليصبح سلس وأسرع */
+      transition: opacity 0.7s ease;
     }
 
     /* تأثيرات السحاب المتحرك ببطء */
@@ -247,15 +248,18 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.appendChild(container);
   document.body.appendChild(overlay);
 
+  // الباب يبدأ في الانفتاح
   setTimeout(() => {
     overlay.classList.add("open");
   }, 7500);
 
+  // يبدأ التلاشي فوراً مع فتح الباب بدون أي انتظار
   setTimeout(() => {
     overlay.classList.add("fade-out");
-  }, 9500);
+  }, 8900);
 
+  // إزالة العنصر نهائياً بسرعة وسلاسة ليظهر الفورم فوراً
   setTimeout(() => {
     overlay.remove();
-  }, 10700);
+  }, 9600);
 });
