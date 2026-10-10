@@ -90,10 +90,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (saveChangesBtn) {
     saveChangesBtn.addEventListener("click", async () => {
       const sId = document.getElementById("edit-student-id").value;
+      const newName = document.getElementById("edit-student-name").value.trim();
       const newPhone = document.getElementById("edit-student-phone").value.trim();
-      const newGrade = document.getElementById("edit-student-grade").value.trim();
+      const newGrade = document.getElementById("edit-student-grade").value;
 
       if (!sId) return;
+
+      if (!newName) {
+        showError("يجيب كتابة اسم الطالب.");
+        return;
+      }
 
       try {
         saveChangesBtn.disabled = true;
@@ -101,6 +107,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const studentRef = doc(db, "users", sId);
         await updateDoc(studentRef, {
+          fullName: newName,
+          name: newName,
           phone: newPhone,
           phoneNumber: newPhone,
           whatsapp: newPhone,
@@ -222,8 +230,8 @@ async function loadServantStudentsManagement() {
             <td style="padding: 10px; color: var(--text-muted); direction: ltr; text-align: right;">${phone}</td>
             <td style="padding: 10px;"><span style="background: var(--bg-color); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-color); color: #2980b9;">${grade}</span></td>
             <td style="padding: 10px; text-align: center;">
-              <button onclick="window.openEditStudentModal('${sId}', '${name}', '${phone === 'غير مسجل' ? '' : phone}', '${grade === 'غير محدد' ? '' : grade}')" style="background: #2980b9; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; font-weight: bold;" title="تعديل"><i class="fa-solid fa-pen"></i> تعديل</button>
-              <button onclick="window.deleteStudentAccount('${sId}', '${name}')" style="background: #e74c3c; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" title="حذف"><i class="fa-solid fa-trash"></i> حذف</button>
+              <button onclick="window.openEditStudentModal('${sId}', '${name.replace(/'/g, "\\'")}', '${phone === 'غير مسجل' ? '' : phone}', '${grade}')" style="background: #2980b9; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; font-weight: bold;" title="تعديل"><i class="fa-solid fa-pen"></i> تعديل</button>
+              <button onclick="window.deleteStudentAccount('${sId}', '${name.replace(/'/g, "\\'")}')" style="background: #e74c3c; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" title="حذف"><i class="fa-solid fa-trash"></i> حذف</button>
             </td>
           </tr>
         `;
@@ -243,12 +251,17 @@ async function loadServantStudentsManagement() {
   }
 }
 
-// دالة فتح نافذة التعديل وتعبئة البيانات
+// دالة فتح نافذة التعديل وتعبئة البيانات وإسناد المرحلة للقائمة المنسدلة
 window.openEditStudentModal = function(id, name, phone, grade) {
   document.getElementById("edit-student-id").value = id;
   document.getElementById("edit-student-name").value = name;
   document.getElementById("edit-student-phone").value = phone;
-  document.getElementById("edit-student-grade").value = grade;
+  
+  const gradeSelect = document.getElementById("edit-student-grade");
+  if (gradeSelect) {
+    gradeSelect.value = grade;
+  }
+
   document.getElementById("edit-student-modal").style.display = "flex";
 };
 
