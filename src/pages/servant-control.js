@@ -75,6 +75,51 @@ document.addEventListener("DOMContentLoaded", () => {
   updateQuestionsPreview();
   loadAdminQuizzes();
   loadEssaysForGrading();
+
+  // تفعيل أحداث نافذة التعديل المخصصة للمشرف
+  const closeModalBtn = document.getElementById("close-edit-modal");
+  const editModal = document.getElementById("edit-student-modal");
+  const saveChangesBtn = document.getElementById("save-student-changes");
+
+  if (closeModalBtn && editModal) {
+    closeModalBtn.addEventListener("click", () => {
+      editModal.style.display = "none";
+    });
+  }
+
+  if (saveChangesBtn) {
+    saveChangesBtn.addEventListener("click", async () => {
+      const sId = document.getElementById("edit-student-id").value;
+      const newPhone = document.getElementById("edit-student-phone").value.trim();
+      const newGrade = document.getElementById("edit-student-grade").value.trim();
+
+      if (!sId) return;
+
+      try {
+        saveChangesBtn.disabled = true;
+        saveChangesBtn.innerText = "جاري الحفظ...";
+
+        const studentRef = doc(db, "users", sId);
+        await updateDoc(studentRef, {
+          phone: newPhone,
+          phoneNumber: newPhone,
+          whatsapp: newPhone,
+          classId: newGrade,
+          grade: newGrade
+        });
+
+        showSuccess("تم تحديث بيانات الطالب والمرحلة بنجاح! ✅");
+        editModal.style.display = "none";
+        await loadServantStudentsManagement(); // إعادة تحميل الجدول
+      } catch (error) {
+        console.error("خطأ في تحديث بيانات الطالب:", error);
+        showError("فشل تحديث بيانات الطالب، برجاء المحاولة مرة أخرى.");
+      } finally {
+        saveChangesBtn.disabled = false;
+        saveChangesBtn.innerText = "حفظ التعديلات";
+      }
+    });
+  }
 });
 
 function showSuccess(message) {
@@ -112,11 +157,13 @@ onAuthStateChanged(auth, async (user) => {
 
         servantNameDisplay.textContent = `أ / ${servantData.name || servantData.fullName || "خادم الفصل"}`;
 
+        // 🔒 التحقق الحصري: إظهار قسم الإشراف وإدارة حسابات الطلاب للـ (الخادم المشرف فقط)
         if (servantData.isSupervisor === true) {
           const supervisorSection = document.getElementById("supervisor-approval-section");
           if (supervisorSection) {
             supervisorSection.style.display = "block";
             await loadPendingStudents();
+            await loadServantStudentsManagement(); // تحميل قائمة إدارة الحسابات للمشرف فقط
           }
         }
       } else {
@@ -136,6 +183,88 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = "/login";
   }
 });
+
+// 👑 دالة خاصة بالخادم المشرف: جلب وإدارة حسابات الطلاب المقبولين في النظام
+async function loadServantStudentsManagement() {
+  const container = document.getElementById("servant-students-container");
+  if (!container) return;
+
+  try {
+    const querySnapshot = await getDocs(collection(db, "users"));
+    let studentsHtml = `
+      <table style="width:100%; border-collapse: collapse; font-size: 0.95rem; text-align: right;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--border-color); background: var(--bg-color);">
+            <th style="padding: 10px;">الاسم</th>
+            <th style="padding: 10px;">رقم التليفون</th>
+            <th style="padding: 10px;">المرحلة الدراسية</th>
+            <th style="padding: 10px; text-align: center;">الإجراءات</th>
+          </tr>
+        </thead>
+        <tbody>
+    `;
+
+    let count = 0;
+    querySnapshot.forEach(docSnap => {
+      const data = docSnap.data();
+      const isStudent = (data.accountType === "student" || !data.accountType) && data.status === "approved";
+      
+      if (isStudent) {
+        count++;
+        const sId = docSnap.id;
+        const name = data.fullName || data.name || "مخدوم بدون اسم";
+        const phone = data.phone || data.phoneNumber || data.whatsapp || "غير مسجل";
+        const grade = data.classId || data.grade || "غير محدد";
+
+        studentsHtml += `
+          <tr style="border-bottom: 1px solid var(--border-color);">
+            <td style="padding: 10px; font-weight: 600;">${name}</td>
+            <td style="padding: 10px; color: var(--text-muted); direction: ltr; text-align: right;">${phone}</td>
+            <td style="padding: 10px;"><span style="background: var(--bg-color); padding: 3px 8px; border-radius: 4px; border: 1px solid var(--border-color); color: #2980b9;">${grade}</span></td>
+            <td style="padding: 10px; text-align: center;">
+              <button onclick="window.openEditStudentModal('${sId}', '${name}', '${phone === 'غير مسجل' ? '' : phone}', '${grade === 'غير محدد' ? '' : grade}')" style="background: #2980b9; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-left: 5px; font-weight: bold;" title="تعديل"><i class="fa-solid fa-pen"></i> تعديل</button>
+              <button onclick="window.deleteStudentAccount('${sId}', '${name}')" style="background: #e74c3c; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;" title="حذف"><i class="fa-solid fa-trash"></i> حذف</button>
+            </td>
+          </tr>
+        `;
+      }
+    });
+
+    if (count === 0) {
+      container.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 15px;">لا توجد حسابات طلاب معتمدة في النظام حالياً.</p>`;
+    } else {
+      studentsHtml += `</tbody></table>`;
+      container.innerHTML = studentsHtml;
+    }
+
+  } catch (err) {
+    console.error("خطأ في تحميل قائمة إدارة الطلاب:", err);
+    container.innerHTML = `<p style="color: red; text-align: center;">حدث خطأ أثناء تحميل بيانات الطلاب.</p>`;
+  }
+}
+
+// دالة فتح نافذة التعديل وتعبئة البيانات
+window.openEditStudentModal = function(id, name, phone, grade) {
+  document.getElementById("edit-student-id").value = id;
+  document.getElementById("edit-student-name").value = name;
+  document.getElementById("edit-student-phone").value = phone;
+  document.getElementById("edit-student-grade").value = grade;
+  document.getElementById("edit-student-modal").style.display = "flex";
+};
+
+// دالة حذف حساب الطالب من السيستم نهائياً
+window.deleteStudentAccount = async function(id, name) {
+  if (confirm(`هل أنت متأكد من رغبتك في حذف حساب الطالب (${name}) نهائياً من النظام؟`)) {
+    try {
+      await deleteDoc(doc(db, "users", id));
+      showSuccess("تم حذف حساب الطالب بنجاح! 🗑️");
+      await loadServantStudentsManagement(); // تحديث الجدول
+    } catch (err) {
+      console.error("خطأ أثناء حذف الحساب:", err);
+      showError("حدث خطأ أثناء محاولة حذف الحساب.");
+    }
+  }
+};
 
 async function loadPendingStudents() {
   const container = document.getElementById("pending-students-list");
@@ -234,6 +363,7 @@ async function approveStudent(studentId) {
     if (container && container.querySelectorAll('tbody tr').length === 0) {
       container.innerHTML = `<p style="text-align: center; color: #27ae60; font-weight: bold; padding: 15px;">لا توجد طلبات انضمام معلقة حالياً 🎉</p>`;
     }
+    await loadServantStudentsManagement();
   } catch (err) {
     console.error("خطأ أثناء قبول الطالب:", err);
     showError("حدث خطأ أثناء قبول الطالب!");
@@ -286,7 +416,6 @@ async function loadStudentsForAttendance() {
         return;
       }
 
-      // شرط: استبعاد الطلاب المعلقين (pending) من قائمة الحضور والغياب
       if (userData.status === "pending") {
         return;
       }

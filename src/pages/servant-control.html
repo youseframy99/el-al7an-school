@@ -42,7 +42,7 @@
     <div id="error-msg" class="error hidden"></div>
     <div id="success-msg" class="success hidden"></div>
 
-    <!-- قسم لوحة إشراف الطلبات المعلقة (مخفي افتراضياً ويظهر للمشرفين فقط) -->
+    <!-- قسم لوحة إشراف الطلبات والطلاب (مخفي افتراضياً ويظهر للخادم المشرف فقط) -->
     <section class="card-box" id="supervisor-approval-section" style="margin-bottom: 30px; display: none; border: 2px solid #e74c3c;">
       <h3 class="section-title" style="color: #c0392b;">
         <i class="fa-solid fa-user-clock"></i> لوحة إشراف الطلبات (طلبات الطلاب المعلقة)
@@ -50,7 +50,49 @@
       <div id="pending-students-list">
         <p style="text-align: center; color: var(--text-muted); padding: 15px;">جاري تحميل طلبات الانضمام المعلقة...</p>
       </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 25px 0;">
+
+      <h3 class="section-title" style="color: #2980b9;">
+        <i class="fa-solid fa-users-gear"></i> إدارة وحذف حسابات الطلاب (المخدومين)
+      </h3>
+      <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">يمكنك هنا الاطلاع على كافة المخدومين المقبولين، تعديل المرحلة أو الهاتف، أو حذف الحساب عند الحاجة.</p>
+      
+      <div style="overflow-x: auto;">
+        <div id="servant-students-container">
+          <p style="color: var(--text-muted); text-align: center;">جاري تحميل قائمة الطلاب...</p>
+        </div>
+      </div>
     </section>
+
+    <!-- نافذة تعديل بيانات الطالب (Modal) -->
+    <div id="edit-student-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center;">
+      <div style="background: var(--card-bg, #fff); color: var(--text-color, #333); padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid var(--border-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+          <h3 style="margin: 0;"><i class="fa-solid fa-user-pen"></i> تعديل بيانات الطالب</h3>
+          <button id="close-edit-modal" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: inherit;"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <input type="hidden" id="edit-student-id">
+        
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem;">اسم الطالب:</label>
+          <input type="text" id="edit-student-name" readonly style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-color, #f4f4f4); color: var(--text-color);">
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem;">رقم التليفون:</label>
+          <input type="text" id="edit-student-phone" placeholder="أدخل رقم الهاتف..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color);">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem;">المرحلة الدراسية (الفصل):</label>
+          <input type="text" id="edit-student-grade" placeholder="أدخل المرحلة الدراسية..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-color);">
+        </div>
+
+        <button id="save-student-changes" style="width: 100%; padding: 10px; background: #2980b9; color: #fff; border: none; border-radius: 6px; font-weight: bold; cursor: pointer;">حفظ التعديلات</button>
+      </div>
+    </div>
 
     <!-- 1. قسم تسجيل الحضور والغياب -->
     <section class="card-box">
