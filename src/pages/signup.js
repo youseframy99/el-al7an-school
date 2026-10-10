@@ -11,6 +11,22 @@ import {
   doc, setDoc, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// --- تفعيل زر إظهار/إخفاء كلمة المرور ---
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".toggle-password").forEach(icon => {
+    icon.addEventListener("click", () => {
+      const targetId = icon.getAttribute("data-target");
+      const input = document.getElementById(targetId);
+      if (input) {
+        const type = input.getAttribute("type") === "password" ? "text" : "password";
+        input.setAttribute("type", type);
+        icon.classList.toggle("fa-eye");
+        icon.classList.toggle("fa-eye-slash");
+      }
+    });
+  });
+});
+
 const form = document.getElementById("signup-form");
 const accountType = document.getElementById("accountType");
 const studentFields = document.getElementById("student-fields");

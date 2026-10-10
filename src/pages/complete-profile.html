@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>استكمال البيانات - مدرسة الألحان</title>
   <link rel="icon" href="/assets/images/cross (2).png">
+  <!-- إضافة مكتبة الأيقونات FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/src/styles/main.css">
   <link rel="stylesheet" href="/src/pages/signup.css">
 </head>
@@ -71,7 +73,10 @@
 
         <!-- كود التحقق للخدام -->
         <label for="servantCode" style="margin-top: 15px;">ادخل كود الخادم العادي</label>
-        <input type="password" id="servantCode" placeholder="الكود السري">
+        <div style="position: relative;">
+          <input type="password" id="servantCode" placeholder="الكود السري" style="width: 100%; padding-left: 40px;">
+          <i class="fa-solid fa-eye toggle-password" data-target="servantCode" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted, #888);"></i>
+        </div>
 
         <!-- اختيار خادم مشرف -->
         <div style="margin-top: 15px; margin-bottom: 10px;">
@@ -82,7 +87,10 @@
 
         <div id="supervisor-code-group" class="hidden" style="margin-top: 10px;">
           <label for="supervisorCode">ادخل كود الخادم المشرف</label>
-          <input type="password" id="supervisorCode" placeholder="الكود السري للمشرفين">
+          <div style="position: relative;">
+            <input type="password" id="supervisorCode" placeholder="الكود السري للمشرفين" style="width: 100%; padding-left: 40px;">
+            <i class="fa-solid fa-eye toggle-password" data-target="supervisorCode" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted, #888);"></i>
+          </div>
         </div>
       </div>
 
@@ -91,6 +99,24 @@
       <button type="submit">حفظ ودخول</button>
     </form>
   </main>
+
+  <!-- سكريبت تفعيل أزرار إظهار/إخفاء كلمات المرور -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll(".toggle-password").forEach(icon => {
+        icon.addEventListener("click", () => {
+          const targetId = icon.getAttribute("data-target");
+          const input = document.getElementById(targetId);
+          if (input) {
+            const type = input.getAttribute("type") === "password" ? "text" : "password";
+            input.setAttribute("type", type);
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
+          }
+        });
+      });
+    });
+  </script>
 
   <script src="/src/theme.js"></script>
 

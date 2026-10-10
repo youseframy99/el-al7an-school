@@ -13,6 +13,22 @@ import {
 
 console.log("⚡ تم تحميل ملف login.js بنجاح!");
 
+// --- تفعيل زر إظهار/إخفاء كلمة المرور ---
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".toggle-password").forEach(icon => {
+    icon.addEventListener("click", () => {
+      const targetId = icon.getAttribute("data-target");
+      const input = document.getElementById(targetId);
+      if (input) {
+        const type = input.getAttribute("type") === "password" ? "text" : "password";
+        input.setAttribute("type", type);
+        icon.classList.toggle("fa-eye");
+        icon.classList.toggle("fa-eye-slash");
+      }
+    });
+  });
+});
+
 const form = document.getElementById("login-form");
 const errorMsg = document.getElementById("error-msg");
 
@@ -86,7 +102,6 @@ async function handleSocialLogin(provider) {
       return;
     }
 
-    // التحقق من حالة الطالب المعلق
     if (userData.accountType === "student" && userData.status === "pending") {
       showError("حسابك قيد المراجعة بواسطة الخدام المشرفين ولم يتم تفعيله بعد.");
       await signOut(auth);
@@ -121,9 +136,7 @@ if (forgotBtn) {
   });
 }
 
-// --- التوجيه حسب نوع الحساب (بعد دخول بالإيميل) ---
 async function routeAfterLogin(uid) {
-  console.log("4. جاري قراءة نوع الحساب من Firestore...");
   const userRef = doc(db, "users", uid);
   const snap = await getDoc(userRef);
 
@@ -133,9 +146,7 @@ async function routeAfterLogin(uid) {
   }
 
   const userData = snap.data();
-  console.log("5. بيانات المستخدم:", userData);
 
-  // التحقق من حالة الطالب المعلق
   if (userData.accountType === "student" && userData.status === "pending") {
     showError("حسابك قيد المراجعة بواسطة الخدام المشرفين ولم يتم تفعيله بعد.");
     await signOut(auth);
@@ -146,7 +157,6 @@ async function routeAfterLogin(uid) {
 }
 
 function redirectAfterLogin(type) {
-  console.log("6. جاري التوجيه حسب نوع الحساب:", type);
   window.location.href = type === "servant"
     ? "/servant-dashboard"
     : "/";

@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>تسجيل الدخول - مدرسة الألحان</title>
   <link rel="icon" href="/assets/images/cross (2).png">
+  <!-- إضافة مكتبة الأيقونات FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/src/styles/main.css">
   <link rel="stylesheet" href="/src/pages/signup.css">
 </head>
@@ -48,7 +50,10 @@
       <input type="email" id="email" required>
 
       <label for="password">كلمة المرور</label>
-      <input type="password" id="password">
+      <div style="position: relative;">
+        <input type="password" id="password" style="width: 100%; padding-left: 40px;">
+        <i class="fa-solid fa-eye toggle-password" data-target="password" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted, #888);"></i>
+      </div>
 
       <a href="#" id="forgot-password" class="forgot-link">نسيت كلمة المرور؟</a>
 
