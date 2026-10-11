@@ -8,7 +8,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, setDoc, getDoc
+  doc, setDoc, getDoc, collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // --- تفعيل زر إظهار/إخفاء كلمة المرور ---
@@ -61,6 +61,27 @@ form.addEventListener("submit", async (e) => {
 
   if (confirmPassword && password !== confirmPassword) {
     return showError("كلمتا المرور غير متطابقتين!");
+  }
+
+  // --- التحقق مما إذا كان رقم الهاتف/الواتساب مسجلاً مسبقاً لمنع التكرار ---
+  try {
+    const usersRef = collection(db, "users");
+    
+    const qWhatsapp = query(usersRef, where("whatsapp", "==", whatsapp));
+    const snapWhatsapp = await getDocs(qWhatsapp);
+    
+    const qPhone = query(usersRef, where("phone", "==", whatsapp));
+    const snapPhone = await getDocs(qPhone);
+
+    const qPhoneNum = query(usersRef, where("phoneNumber", "==", whatsapp));
+    const snapPhoneNum = await getDocs(qPhoneNum);
+
+    if (!snapWhatsapp.empty || !snapPhone.empty || !snapPhoneNum.empty) {
+      return showError("رقم التليفون أو الواتساب هذا مسجل مسبقاً بحساب آخر بالفعل!");
+    }
+  } catch (err) {
+    console.error("خطأ أثناء التحقق من تكرار رقم الهاتف:", err);
+    return showError("حدث خطأ أثناء التحقق من بيانات الرقم، حاول مرة أخرى.");
   }
 
   let profileData = {
