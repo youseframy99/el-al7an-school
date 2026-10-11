@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="/src/styles/main.css">
   <link rel="stylesheet" href="/src/pages/signup.css">
   <style>
-    /* تصميم أزرار التبديل (Tabs) مثل تصميم الصورة */
+    /* تصميم أزرار التبديل (Tabs) */
     .login-tabs {
       display: flex;
       border: 1px solid var(--border-color, #444);
@@ -106,6 +106,30 @@
 
       <button type="submit">دخول</button>
       <p class="switch-link">معندكش حساب؟ <a href="/signup">إنشاء حساب جديد</a></p>
+
+      <!-- شريط وسائل التواصل الاجتماعي (اليمين: الكنيسة | الشمال: المطور) -->
+      <div class="footer-social-support" style="margin-top: 25px; padding-top: 15px; border-top: 1px solid var(--border-color, #333); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; direction: rtl;">
+        <!-- الناحية اليمين: الكنيسة -->
+        <div class="church-links" style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 0.85rem; color: var(--text-muted, #aaa); font-weight: bold;">الكنيسة:</span>
+          <a href="https://www.facebook.com/groups/28718010707" target="_blank" title="جروب الكنيسة على فيسبوك" style="color: #1877F2; font-size: 1.3rem;">
+            <i class="fa-brands fa-facebook"></i>
+          </a>
+        </div>
+
+        <!-- الناحية الشمال: المطور -->
+        <div class="developer-links" style="display: flex; align-items: center; gap: 10px; direction: ltr;">
+          <span style="font-size: 0.85rem; color: var(--text-muted, #aaa); font-weight: bold;">Dev Support:</span>
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="https://wa.me/201019259573" target="_blank" title="تواصل مع المطور عبر الواتساب" style="color: #25D366; font-size: 1.3rem;">
+              <i class="fa-brands fa-whatsapp"></i>
+            </a>
+            <a href="https://www.facebook.com/yousef.ramy.73997" target="_blank" title="فيسبوك المطور" style="color: #1877F2; font-size: 1.3rem;">
+              <i class="fa-brands fa-facebook"></i>
+            </a>
+          </div>
+        </div>
+      </div>
     </form>
   </main>
 
