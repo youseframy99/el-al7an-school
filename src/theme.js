@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       100% { transform: translate(-3%, -2%) scale(0.95); }
     }
 
-    /* حاوية القديسين مع أنيمشن ظهور هادئ وتدريجي */
+    /* حاوية القديسين مخفية تماماً في البداية ولا تظهر إلا بعد فتح الباب */
     .saints-container {
       position: absolute;
       width: 100%;
@@ -90,35 +90,15 @@ document.addEventListener("DOMContentLoaded", () => {
       padding: 0 40px;
       pointer-events: none;
       opacity: 0;
-      animation: saintsFadeIn 2.5s ease-out forwards 0.4s;
+      visibility: hidden;
+      transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
       z-index: 2;
     }
 
-    @keyframes saintsFadeIn {
-      0% {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      100% {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    /* --- تعديل الموبايل فقط: إخفاء القديسين وإظهارهم لحظة فتح الباب --- */
-    @media (max-width: 768px) {
-      .saints-container {
-        opacity: 0 !important;
-        visibility: hidden !important;
-        transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out !important;
-        animation: none !important; /* إلغاء الأنيمشن الافتراضي عشان يفضلوا مختفيين */
-      }
-
-      /* أول ما الباب يفتح (تضاف كلاس open)، القديسون يظهروا بسلاسة */
-      .church-door-overlay-v3.open .saints-container {
-        opacity: 1 !important;
-        visibility: visible !important;
-      }
+    /* كلاس إظهار القديسين بعد فتح الباب */
+    .church-door-overlay-v3.show-saints .saints-container {
+      opacity: 1;
+      visibility: visible;
     }
 
     /* مجموعات القديسين فوق بعضها (شكل عمودي) */
@@ -218,11 +198,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.createElement("div");
   overlay.className = "church-door-overlay-v3";
   
-  // حاوية الـ 6 قديسين
+  // حاوية الـ 6 قديسين (تعمل على اللاب والموبايل بنفس الآلية بعد الباب ما يفتح)
   const saintsContainer = document.createElement("div");
   saintsContainer.className = "saints-container";
 
-  // المجموعة اليسرى (3 قديسين فوق بعض)
   const leftGroup = document.createElement("div");
   leftGroup.className = "saints-group-left";
   leftGroup.innerHTML = `
@@ -231,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="saint-figure" style="background-image: url('assets/images/saint3.png');"></div>
   `;
 
-  // المجموعة اليمنى (3 قديسين فوق بعض)
   const rightGroup = document.createElement("div");
   rightGroup.className = "saints-group-right";
   rightGroup.innerHTML = `
@@ -264,17 +242,22 @@ document.addEventListener("DOMContentLoaded", () => {
   overlay.appendChild(container);
   document.body.appendChild(overlay);
 
-  // الباب يبدأ في الانفتاح
+  // 1. الباب يبدأ في الانفتاح عند 7.5 ثانية
   setTimeout(() => {
     overlay.classList.add("open");
   }, 7500);
 
-  // يبدأ التلاشي فوراً مع فتح الباب بدون أي انتظار
+  // 2. صور القديسين تظهر وتنور بعد ما الباب يفتح بثانية (مثلاً عند 8.0 ثانية أو أول ما يبدأ يفتح)
+  setTimeout(() => {
+    overlay.classList.add("show-saints");
+  }, 7800);
+
+  // 3. يبدأ التلاشي
   setTimeout(() => {
     overlay.classList.add("fade-out");
   }, 8900);
 
-  // إزالة العنصر نهائياً بسرعة وسلاسة ليظهر الفورم فوراً
+  // 4. إزالة العنصر نهائياً
   setTimeout(() => {
     overlay.remove();
   }, 9250);
