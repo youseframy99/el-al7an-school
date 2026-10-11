@@ -8,7 +8,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, setDoc
+  doc, getDoc, setDoc, collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 console.log("⚡ تم تحميل ملف login.js بنجاح!");
@@ -80,27 +80,36 @@ if (!form) {
       if (!targetEmail) return showError("اكتب البريد الإلكتروني");
     } else {
       const phoneInput = document.getElementById("phone")?.value.trim();
-      if (!phoneInput) return showError("اكتب رقم الهاتف (واتساب)");
+      if (!phoneInput) return showError("اكتب رقم الهاتف أو الواتساب");
 
       try {
-        // جلب مستند المستخدم مباشرة باستخدام رقم الواتساب كـ ID
-        const userDocRef = doc(db, "users", phoneInput);
-        const userSnap = getDoc(userDocRef);
-        // أو البحث بالـ ID المباشر لو الـ Document ID هو رقم الواتساب
-        const snap = await userSnap;
+        const usersRef = collection(db, "users");
+        
+        // البحث بالاستعلام المباشر في حقل whatsapp وحقل phone وحقل phoneNumber
+        let q = query(usersRef, where("whatsapp", "==", phoneInput));
+        let querySnap = await getDocs(q);
 
-        if (!snap.exists()) {
+        if (querySnap.empty) {
+          q = query(usersRef, where("phone", "==", phoneInput));
+          querySnap = await getDocs(q);
+        }
+
+        if (querySnap.empty) {
+          q = query(usersRef, where("phoneNumber", "==", phoneInput));
+          querySnap = await getDocs(q);
+        }
+
+        if (querySnap.empty) {
           return showError("رقم الهاتف غير مسجل بالنظام!");
         }
 
-        const userData = snap.data();
-        targetEmail = userData.email;
+        targetEmail = querySnap.docs[0].data().email;
 
         if (!targetEmail) {
           return showError("لا يوجد بريد إلكتروني مرتبط برقم الهاتف هذا.");
         }
       } catch (err) {
-        console.error("خطأ أثناء جلب الحساب برقم الهاتف:", err);
+        console.error("خطأ أثناء البحث عن الحساب برقم الهاتف:", err);
         return showError("حدث خطأ أثناء البحث عن الحساب برقم الهاتف.");
       }
     }
