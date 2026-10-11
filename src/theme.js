@@ -105,6 +105,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    /* --- تعديل الموبايل فقط: إخفاء القديسين وإظهارهم لحظة فتح الباب --- */
+    @media (max-width: 768px) {
+      .saints-container {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out !important;
+        animation: none !important; /* إلغاء الأنيمشن الافتراضي عشان يفضلوا مختفيين */
+      }
+
+      /* أول ما الباب يفتح (تضاف كلاس open)، القديسون يظهروا بسلاسة */
+      .church-door-overlay-v3.open .saints-container {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
+    }
+
     /* مجموعات القديسين فوق بعضها (شكل عمودي) */
     .saints-group-left, .saints-group-right {
       display: flex;
