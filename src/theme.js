@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       100% { transform: translate(-3%, -2%) scale(0.95); }
     }
 
-    /* حاوية القديسين مخفية تماماً في البداية ولا تظهر إلا بعد فتح الباب */
+    /* --- اللاب توب والـ Desktop: يشتغل بالشكل الطبيعي القديم --- */
     .saints-container {
       position: absolute;
       width: 100%;
@@ -90,15 +90,35 @@ document.addEventListener("DOMContentLoaded", () => {
       padding: 0 40px;
       pointer-events: none;
       opacity: 0;
-      visibility: hidden;
-      transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+      animation: saintsFadeIn 2.5s ease-out forwards 0.4s;
       z-index: 2;
     }
 
-    /* كلاس إظهار القديسين بعد فتح الباب */
-    .church-door-overlay-v3.show-saints .saints-container {
-      opacity: 1;
-      visibility: visible;
+    @keyframes saintsFadeIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    /* --- الموبايل فقط: إخفاء القديسين في البداية وإظهارهم بعد فتح الباب --- */
+    @media (max-width: 768px) {
+      .saints-container {
+        opacity: 0 !important;
+        visibility: hidden !important;
+        animation: none !important;
+        transition: opacity 0.8s ease-in-out, visibility 0.8s ease-in-out !important;
+      }
+
+      /* على الموبايل: أول ما كلاس show-saints يضاف، تظهر الأيقونات بعد فتح الباب */
+      .church-door-overlay-v3.show-saints .saints-container {
+        opacity: 1 !important;
+        visibility: visible !important;
+      }
     }
 
     /* مجموعات القديسين فوق بعضها (شكل عمودي) */
@@ -198,7 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const overlay = document.createElement("div");
   overlay.className = "church-door-overlay-v3";
   
-  // حاوية الـ 6 قديسين (تعمل على اللاب والموبايل بنفس الآلية بعد الباب ما يفتح)
+  // حاوية الـ 6 قديسين
   const saintsContainer = document.createElement("div");
   saintsContainer.className = "saints-container";
 
@@ -247,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
     overlay.classList.add("open");
   }, 7500);
 
-  // 2. صور القديسين تظهر وتنور بعد ما الباب يفتح بثانية (مثلاً عند 8.0 ثانية أو أول ما يبدأ يفتح)
+  // 2. على الموبايل فقط: القديسون يظهرون بعد فتح الباب (عند 7.8 ثانية)
   setTimeout(() => {
     overlay.classList.add("show-saints");
   }, 7800);
