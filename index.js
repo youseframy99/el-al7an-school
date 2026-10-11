@@ -158,8 +158,15 @@ onAuthStateChanged(auth, async (user) => {
 
       if (studentSnap.exists()) {
         const studentData = studentSnap.data();
+        const accountType = (studentData.accountType || "").toLowerCase();
+
+        // 🛡️ الحراسة الأمنية: منع الخادم من دخول صفحة المخدوم وتوجيهه تلقائياً للكنترول الخاص به
+        if (accountType === "servant") {
+          window.location.href = "/servant-dashboard";
+          return;
+        }
         
-        if (studentData.accountType === "student" && studentData.status === "pending") {
+        if (accountType === "student" && studentData.status === "pending") {
           alert("عذراً، حسابك قيد المراجعة ولم يتم اعتماده من قِبل خادم الفصول بعد. برجاء الانتظار لحين قبول الطلب.");
           await signOut(auth);
           window.location.href = '/login';
