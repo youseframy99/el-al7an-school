@@ -8,7 +8,7 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, setDoc, collection, query, where, getDocs
+  doc, getDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 console.log("⚡ تم تحميل ملف login.js بنجاح!");
@@ -79,34 +79,28 @@ if (!form) {
       targetEmail = document.getElementById("email")?.value.trim();
       if (!targetEmail) return showError("اكتب البريد الإلكتروني");
     } else {
-      const phone = document.getElementById("phone")?.value.trim();
-      if (!phone) return showError("اكتب رقم الهاتف");
+      const phoneInput = document.getElementById("phone")?.value.trim();
+      if (!phoneInput) return showError("اكتب رقم الهاتف (واتساب)");
 
       try {
-        // البحث عن إيميل المخدوم المرتبط برقم الهاتف من قاعدة البيانات
-        const usersRef = collection(db, "users");
-        const q = query(usersRef, where("phone", "==", phone));
-        const querySnap = await getDocs(q);
+        // جلب مستند المستخدم مباشرة باستخدام رقم الواتساب كـ ID
+        const userDocRef = doc(db, "users", phoneInput);
+        const userSnap = getDoc(userDocRef);
+        // أو البحث بالـ ID المباشر لو الـ Document ID هو رقم الواتساب
+        const snap = await userSnap;
 
-        if (querySnap.empty) {
-          // جرب البحث باسم الحقل الآخر لو متسجل phone أو phoneNumber أو whatsapp
-          const q2 = query(usersRef, where("phoneNumber", "==", phone));
-          const querySnap2 = await getDocs(q2);
-          
-          if (querySnap2.empty) {
-            return showError("رقم الهاتف غير مسجل بالنظام!");
-          } else {
-            targetEmail = querySnap2.docs[0].data().email;
-          }
-        } else {
-          targetEmail = querySnap.docs[0].data().email;
+        if (!snap.exists()) {
+          return showError("رقم الهاتف غير مسجل بالنظام!");
         }
+
+        const userData = snap.data();
+        targetEmail = userData.email;
 
         if (!targetEmail) {
           return showError("لا يوجد بريد إلكتروني مرتبط برقم الهاتف هذا.");
         }
       } catch (err) {
-        console.error("خطأ أثناء البحث عن البريد برقم الهاتف:", err);
+        console.error("خطأ أثناء جلب الحساب برقم الهاتف:", err);
         return showError("حدث خطأ أثناء البحث عن الحساب برقم الهاتف.");
       }
     }
@@ -239,7 +233,7 @@ function showSuccess(msg) {
 function mapFirebaseError(code) {
   const map = {
     "auth/invalid-email": "البريد الإلكتروني غير صحيح",
-    "auth/user-not-found": "لا يوجد حساب بهذا البيانات",
+    "auth/user-not-found": "لا يوجد حساب بهذه البيانات",
     "auth/wrong-password": "كلمة المرور غير صحيحة",
     "auth/invalid-credential": "بيانات الدخول غير صحيحة",
     "auth/popup-closed-by-user": "تم إغلاق نافذة تسجيل الدخول"
