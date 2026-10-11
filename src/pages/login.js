@@ -8,13 +8,15 @@ import {
   signOut
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  doc, getDoc, setDoc
+  doc, getDoc, setDoc, collection, query, where, getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 console.log("⚡ تم تحميل ملف login.js بنجاح!");
 
-// --- تفعيل زر إظهار/إخفاء كلمة المرور ---
+let loginMethod = "email"; // النمط الافتراضي (email أو phone)
+
 document.addEventListener("DOMContentLoaded", () => {
+  // --- تفعيل زر إظهار/إخفاء كلمة المرور ---
   document.querySelectorAll(".toggle-password").forEach(icon => {
     icon.addEventListener("click", () => {
       const targetId = icon.getAttribute("data-target");
@@ -27,37 +29,90 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   });
+
+  // --- التبديل بين البريد الإلكتروني والهاتف ---
+  const tabEmail = document.getElementById("tab-email");
+  const tabPhone = document.getElementById("tab-phone");
+  const emailGroup = document.getElementById("email-group");
+  const phoneGroup = document.getElementById("phone-group");
+
+  if (tabEmail && tabPhone) {
+    tabEmail.addEventListener("click", () => {
+      loginMethod = "email";
+      tabEmail.classList.add("active");
+      tabPhone.classList.remove("active");
+      emailGroup.classList.add("active");
+      phoneGroup.classList.remove("active");
+    });
+
+    tabPhone.addEventListener("click", () => {
+      loginMethod = "phone";
+      tabPhone.classList.add("active");
+      tabEmail.classList.remove("active");
+      phoneGroup.classList.add("active");
+      emailGroup.classList.remove("active");
+    });
+  }
 });
 
 const form = document.getElementById("login-form");
 const errorMsg = document.getElementById("error-msg");
 
 if (!form) {
-  console.error("❌ لم يتم العثور على id='login-form' في ملف HTML! تأكد من تسمية الـ Form صح.");
+  console.error("❌ لم يتم العثور على id='login-form' في ملف HTML!");
 } else {
-  console.log("✅ تم العثور على login-form والملف جاهز للاستماع.");
-
-  // --- دخول بالإيميل ---
+  // --- التعامل مع تسجيل الدخول ---
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
-    console.log("1. تم الضغط على زر التسجيل...");
 
     if (errorMsg) {
       errorMsg.classList.remove("hidden", "success");
       errorMsg.classList.add("error");
     }
 
-    const email = document.getElementById("email")?.value.trim();
     const password = document.getElementById("password")?.value;
-
-    if (!email) return showError("اكتب البريد الإلكتروني");
     if (!password) return showError("اكتب كلمة المرور");
 
-    try {
-      console.log("2. جاري التحقق من Firebase Auth...");
-      const cred = await signInWithEmailAndPassword(auth, email, password);
-      console.log("3. تم التحقق بنجاح! UID:", cred.user.uid);
+    let targetEmail = "";
 
+    if (loginMethod === "email") {
+      targetEmail = document.getElementById("email")?.value.trim();
+      if (!targetEmail) return showError("اكتب البريد الإلكتروني");
+    } else {
+      const phone = document.getElementById("phone")?.value.trim();
+      if (!phone) return showError("اكتب رقم الهاتف");
+
+      try {
+        // البحث عن إيميل المخدوم المرتبط برقم الهاتف من قاعدة البيانات
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("phone", "==", phone));
+        const querySnap = await getDocs(q);
+
+        if (querySnap.empty) {
+          // جرب البحث باسم الحقل الآخر لو متسجل phone أو phoneNumber أو whatsapp
+          const q2 = query(usersRef, where("phoneNumber", "==", phone));
+          const querySnap2 = await getDocs(q2);
+          
+          if (querySnap2.empty) {
+            return showError("رقم الهاتف غير مسجل بالنظام!");
+          } else {
+            targetEmail = querySnap2.docs[0].data().email;
+          }
+        } else {
+          targetEmail = querySnap.docs[0].data().email;
+        }
+
+        if (!targetEmail) {
+          return showError("لا يوجد بريد إلكتروني مرتبط برقم الهاتف هذا.");
+        }
+      } catch (err) {
+        console.error("خطأ أثناء البحث عن البريد برقم الهاتف:", err);
+        return showError("حدث خطأ أثناء البحث عن الحساب برقم الهاتف.");
+      }
+    }
+
+    try {
+      const cred = await signInWithEmailAndPassword(auth, targetEmail, password);
       await routeAfterLogin(cred.user.uid);
     } catch (err) {
       console.error("❌ خطأ تسجيل الدخول:", err);
@@ -122,7 +177,12 @@ if (forgotBtn) {
     e.preventDefault();
     if (errorMsg) errorMsg.classList.add("hidden");
 
-    const email = document.getElementById("email")?.value.trim();
+    let email = document.getElementById("email")?.value.trim();
+
+    if (!email && loginMethod === "phone") {
+      return showError("يرجى اختيار تبويب (البريد الإلكتروني) وكتابته لإعادة تعيين كلمة المرور");
+    }
+
     if (!email) {
       return showError("اكتب إيميلك الأول في الخانة فوق عشان نبعتلك رابط إعادة التعيين");
     }
@@ -179,7 +239,7 @@ function showSuccess(msg) {
 function mapFirebaseError(code) {
   const map = {
     "auth/invalid-email": "البريد الإلكتروني غير صحيح",
-    "auth/user-not-found": "لا يوجد حساب بهذا البريد",
+    "auth/user-not-found": "لا يوجد حساب بهذا البيانات",
     "auth/wrong-password": "كلمة المرور غير صحيحة",
     "auth/invalid-credential": "بيانات الدخول غير صحيحة",
     "auth/popup-closed-by-user": "تم إغلاق نافذة تسجيل الدخول"
