@@ -77,7 +77,7 @@ form.addEventListener("submit", async (e) => {
     const snapPhoneNum = await getDocs(qPhoneNum);
 
     if (!snapWhatsapp.empty || !snapPhone.empty || !snapPhoneNum.empty) {
-      return showError("رقم التليفون أو الواتساب هذا مسجل مسبقاً بحساب آخر بالفعل!");
+      return showError("لقد تم تسجيل رقم التلفون هذا في حساب اخر بالفعل!");
     }
   } catch (err) {
     console.error("خطأ أثناء التحقق من تكرار رقم الهاتف:", err);
